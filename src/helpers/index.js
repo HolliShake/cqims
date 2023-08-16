@@ -4,7 +4,6 @@ const SALT = "S@lt_pr06raWW3r"
 const KEY = "Dt0!usTp"
 
 export const helpers =  Object.freeze({
-
   security: {
     encrypt: function (text) { 
       try {
@@ -24,6 +23,5 @@ export const helpers =  Object.freeze({
       }
     },
   },
-
 })
 
