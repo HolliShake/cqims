@@ -1,15 +1,19 @@
 import { merge, remove } from "lodash"
 import { defineStore } from "pinia"
 
+const defaultData = () => ({
+  schoolName: "",
+  schoolShortName: "",
+  schoolNumber: "",
+})
+
 const useSchoolStore = defineStore("SchoolStore", {
 
   state: () => ({
     schools: [],
     isUpdate: false,
     schoolModel: {
-      schoolName: "",
-      schoolShortName: "",
-      schoolNumber: "",
+     ...defaultData(),
     },
   }),
 
@@ -50,11 +54,7 @@ const useSchoolStore = defineStore("SchoolStore", {
     },
     async unsetSchoolModel() {
       this.isUpdate = false
-      this.schoolModel = ({
-        schoolName: "",
-        schoolShortName: "",
-        schoolNumber: "",
-      })
+      this.schoolModel = defaultData()
     },
   },
 })

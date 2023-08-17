@@ -2,8 +2,9 @@
 import { helpers } from "@/helpers"
 import CampusService from "@/services/campus.service"
 import useCampusStore from "@/stores/campus.store"
+import CampusModal from "@/views/pages/system/campus/Campus-Modal.vue"
 import { avatarText } from "@core/utils/formatters"
-import { inject, onMounted } from 'vue'
+import { inject, onMounted } from "vue"
 import { useRouter } from "vue-router"
 
 const props = defineProps({
@@ -91,8 +92,51 @@ const data = computed(() => {
 // 👉 Loaded flag
 const loaded = ref(false)
 
+// 👉 Campus modal visibility
+const isCampusModalVisible = ref(false)
+
 // 👉 Toast
 const toast = inject("toast")
+
+// 👉 Swal
+const swal = inject("swal")
+
+// 👉 On create
+async function onCreate() {
+  isCampusModalVisible.value = true
+}
+
+// 👉 On update
+async function onUpdate(campusData) {
+  isCampusModalVisible.value = true
+  campusStore.setCampusModel(campusData.raw, true)
+}
+
+// 👉 On delete
+async function onDelete(campus) {
+  swal.value.fire({
+    question: `Delete campus "${ campus.campusName }"?`,
+    dangerMode: true,
+  })
+    .then(async result => {
+      if (!result) return
+
+      try {
+        const response = await campusService.deleteCampus(campus.id)
+
+        if (response.status >= 200 && response.status <= 299)
+        {
+          await onSuccessDelete(school)
+        } else 
+        {
+          toast.error(response.message)
+        }
+      } catch (err) {
+        toast.error(err.message)
+      } 
+    })
+}
+
 
 onMounted(async () => {
   const ID = helpers.security.decrypt(props.id)
@@ -131,8 +175,8 @@ onMounted(async () => {
 <template>
   <section>
     <PageHeader
-      :title="computedPageData?.schoolShortName ?? 'School'"
-      subtitle="Shows registered schools"
+      :title="computedPageData?.schoolName ?? 'School'"
+      subtitle="Shows all campuses of the school."
       :breadcrumb="breadCrumbs"
     />
     <VCard>
@@ -161,7 +205,7 @@ onMounted(async () => {
             md="auto"
             class="ms-0 ms-md-auto"
           >
-            <VBtn block>
+            <VBtn block @click="onCreate">
               <VIcon
                 start
                 icon="tabler-location-plus"
@@ -176,6 +220,7 @@ onMounted(async () => {
         :headers="headers"
         :items="data"
         :loading="!loaded"
+        @click:row="onUpdate"
       >
         <!-- 👉 Location -->
         <template #item.campusName="{ item }">
@@ -187,7 +232,7 @@ onMounted(async () => {
             >
               <span class="text-xs">{{ avatarText(item.raw.campusName) }}</span>
             </VAvatar>
-            <span class="font-weight-bold text-no-wrap">{{ item.raw.campusName }}</span>
+            <span class="font-weight-bold text-no-wrap">{{ item.raw.campusName }} ({{ item.raw.campusShortName }})</span>
           </div>
         </template>
         <!-- 👉 Location -->
@@ -217,6 +262,7 @@ onMounted(async () => {
               icon="tabler-building" 
               variant="text"
               size="small"
+              @click.stop=""
             >
               <VIcon
                 icon="tabler-building"
@@ -227,9 +273,30 @@ onMounted(async () => {
               </VTooltip>
             </VBtn>
           </RouterLink>
+
+          <VBtn 
+              icon="tabler-trash" 
+              variant="text"
+              size="small"
+              color="error"
+              @click.stop="onDelete(item.raw)"
+            >
+              <VIcon
+                icon="tabler-trash"
+                color="error"
+              />
+            </VBtn>
         </template>
       </AppTable>
     </VCard>
+
+    <!-- 👉 CampusModal -->
+    <Teleport to="#app">
+      <CampusModal
+        v-model="isCampusModalVisible"
+        :school-id="computedPageData?.id ?? null"
+      />
+    </Teleport>
   </section>
 </template>
 
