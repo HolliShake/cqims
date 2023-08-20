@@ -185,7 +185,7 @@ async function setSelectedSchool() {
       <RouterLink
         v-if="isUpdateMode"
         :to="{
-          name: 'system-school-id-campuses',
+          name: 'system-schools-id-campuses',
           params: { id: helpers.security.encrypt(formState.id) },
           props: true,
         }"

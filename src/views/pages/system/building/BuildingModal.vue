@@ -43,10 +43,11 @@ const formState = ref()
 
 // 👉 Form error
 const formError = ref({
-    BuildingName: [],
-    BuildingShortName: [],
-    BuildingNumber: [],
-    BuildingDescription: [],
+  BuildingName: [],
+  BuildingShortName: [],
+  BuildingNumber: [],
+  BuildingDescription: [],
+  NumberOfFloors: [],
 })
 
 // 👉 Computed is update flag
@@ -193,12 +194,20 @@ async function onDelete() {
               :error-messages="formError.BuildingShortName"
             />
           </VCol>
-          <VCol cols="12">
+          <VCol cols="12" md="6">
             <VTextField
               v-model="formState.buildingNumber"
               label="Building Number"
               :rules="[requiredValidator, integerValidator, betweenValidator(formState.buildingNumber, 1, 999)]"
               :error-messages="formError.BuildingNumber"
+            />
+          </VCol>
+          <VCol cols="12" md="6">
+            <VTextField
+              v-model="formState.numberOfFloors"
+              label="No. of Floors"
+              :rules="[requiredValidator, integerValidator, betweenValidator(formState.numberOfFloors, 1, 99)]"
+              :error-messages="formError.NumberOfFloors"
             />
           </VCol>
            <VCol cols="12">

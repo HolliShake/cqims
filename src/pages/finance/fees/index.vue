@@ -1,11 +1,9 @@
-
-
 <script setup>
+
 
 // 
 </script>
 
-
 <template>
-  <h1>Instruments</h1>
+    <h1>Fees</h1>
 </template>

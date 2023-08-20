@@ -273,7 +273,7 @@ async function handleLink(campus) {
         <template #item.action="{ item }">
           <RouterLink
             :to="{
-              name: 'system-school-id-campuses-campusid-buildings',
+              name: 'system-schools-id-campuses-campusid-buildings',
               params: {
                 id: props.id,
                 campusid: helpers.security.encrypt(item.raw.id)
@@ -327,5 +327,5 @@ async function handleLink(campus) {
 
 <route lang="yaml">
   meta:
-    navActiveLink: system-school
+    navActiveLink: system-schools
 </route>

@@ -6,6 +6,7 @@ const defaultData = () => ({
     buildingShortName: "",
     buildingNumber: 0,
     buildingDescription: "",
+    numberOfFloors: 0,
     campusId: 0
 })
 

@@ -10,19 +10,25 @@ export default [
     action: 'read',
   },
   {
-    title: 'Second page',
-    to: { name: 'second-page' },
-    icon: { icon: 'tabler-file' },
-    subject: 'Auth',
-    action: 'read',
+    title: 'Finance',
+    icon: { icon: 'tabler-cash' },
+    children: [
+      {
+        title: 'Fees',
+        to: { name: 'finance-fees' },
+        icon: { icon: 'tabler-receipt-2', size: SUB_ICON_SIZE },
+        subject: 'Auth',
+        action: 'read',
+      },
+    ],
   },
   {
     title: 'System',
     icon: { icon: 'tabler-adjustments-cog' },
     children: [
       {
-        title: 'School',
-        to: { name: 'system-school' },
+        title: 'Schools',
+        to: { name: 'system-schools' },
         icon: { icon: 'tabler-building-arch', size: SUB_ICON_SIZE },
         subject: 'Auth',
         action: 'read',

@@ -1,5 +1,25 @@
 <script setup>
-import avatar1 from '@images/avatars/avatar-1.png'
+import avatar1 from '@images/avatars/avatar-1.png';
+
+
+const computedData = computed(() => { 
+  try {
+    return JSON.parse(localStorage.getItem("userData"))
+  } catch (err) {
+    return ({
+      fullName: "Guest",
+      access: "guest"
+    })
+  }
+})
+
+// 👉 On logout
+async function onLogout() {
+  localStorage.removeItem("userData")
+  localStorage.removeItem("accessToken")
+  localStorage.removeItem("refreshToken")
+  localStorage.removeItem("pinaState")
+}
 </script>
 
 <template>
@@ -21,9 +41,9 @@ import avatar1 from '@images/avatars/avatar-1.png'
       <!-- SECTION Menu -->
       <VMenu
         activator="parent"
-        width="230"
         location="bottom end"
         offset="14px"
+        :max-width="280"
       >
         <VList>
           <!-- 👉 User Avatar & Name -->
@@ -48,9 +68,9 @@ import avatar1 from '@images/avatars/avatar-1.png'
             </template>
 
             <VListItemTitle class="font-weight-semibold">
-              John Doe
+              {{ computedData.fullName }}
             </VListItemTitle>
-            <VListItemSubtitle>Admin</VListItemSubtitle>
+            <VListItemSubtitle>{{ computedData.access ?? "Admin" }}</VListItemSubtitle>
           </VListItem>
 
           <VDivider class="my-2" />
@@ -81,37 +101,11 @@ import avatar1 from '@images/avatars/avatar-1.png'
             <VListItemTitle>Settings</VListItemTitle>
           </VListItem>
 
-          <!-- 👉 Pricing -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-currency-dollar"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>Pricing</VListItemTitle>
-          </VListItem>
-
-          <!-- 👉 FAQ -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-help"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>FAQ</VListItemTitle>
-          </VListItem>
-
           <!-- Divider -->
           <VDivider class="my-2" />
 
           <!-- 👉 Logout -->
-          <VListItem to="/login">
+          <VListItem to="/login" @click="onLogout">
             <template #prepend>
               <VIcon
                 class="me-2"

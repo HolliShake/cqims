@@ -232,31 +232,37 @@ onMounted(async () => {
       <VCol cols="12" v-if="!loaded">
         <VSkeletonLoader type="table" />
       </VCol>
-      <VCol v-else v-for="(item, index) in pagedData" :key="`card-${index}`" cols="*" sm="6" md="6" lg="4" xl="3">
-        <BuildingCard 
-          :building-id="item.id" 
-          :building-number="item.buildingNumber" 
-          :building-name="item.buildingName" 
-          :building-short-name="item.buildingShortName" 
-          :building-description="item.buildingDescription" 
-          @click:edit="onUpdate"
-        />
-      </VCol>
-
-      <VCol cols="12">
-        <div :class="`d-flex align-center justify-sm-space-between justify-center flex-wrap gap-3 ${props.shrink ? 'pa-0' : 'pa-5'} pt-3`">
-          <p class="text-sm text-disabled mb-0">
-            {{ paginationMeta(options, data.length) }}
-          </p>
-
-          <VPagination
-            v-model="options.page"
-            :length="rows"
-            :total-visible="$vuetify.display.xs ? 1 : 5"
-            size="small"
+      <template v-else>
+        <VCard v-if="pagedData.length <= 0">
+          <VCardText class="text-center">
+            No data available
+          </VCardText>
+        </VCard>
+        <VCol v-else v-for="(item, index) in pagedData" :key="`card-${index}`" cols="*" sm="6" md="6" lg="4" xl="3">
+          <BuildingCard 
+            :building-id="item.id" 
+            :building-number="item.buildingNumber" 
+            :building-name="item.buildingName" 
+            :building-short-name="item.buildingShortName" 
+            :building-description="item.buildingDescription" 
+            @click:edit="onUpdate"
           />
-        </div>
-      </VCol>
+        </VCol>
+        <VCol cols="12">
+          <div :class="`d-flex align-center justify-sm-space-between justify-center flex-wrap gap-3 ${props.shrink ? 'pa-0' : 'pa-5'} pt-3`">
+            <p class="text-sm text-disabled mb-0">
+              {{ paginationMeta(options, data.length) }}
+            </p>
+
+            <VPagination
+              v-model="options.page"
+              :length="rows"
+              :total-visible="$vuetify.display.xs ? 1 : 5"
+              size="small"
+            />
+          </div>
+        </VCol>
+      </template>
     </VRow>
 
     <!-- 👉 Building modal -->
@@ -274,5 +280,5 @@ onMounted(async () => {
 
 <route lang="yaml">
   meta:
-    navActiveLink: system-school
+    navActiveLink: system-schools
 </route>

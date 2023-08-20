@@ -18,7 +18,7 @@ const breadCrumbs = ref([
     href: "/dashboard",
   },
   {
-    text: "School",
+    text: "Schools",
     disabled: true,
     href: "#",
   },
@@ -143,7 +143,7 @@ onMounted(async () => {
 <template>
   <section>
     <PageHeader
-      title="School"
+      title="Schools"
       subtitle="Shows registered schools"
       :breadcrumb="breadCrumbs"
     />

@@ -77,7 +77,7 @@ async function handleClick() {
     localStorage.setItem("selectedBuilding", JSON.stringify(computedData.value))
 
     router.push({
-        name: 'system-school-id-campuses-campusid-buildings-buildingid-rooms',
+        name: 'system-schools-id-campuses-campusid-buildings-buildingid-rooms',
         params: {
             buildingid: helpers.security.encrypt(props.buildingId),
         },
