@@ -1,12 +1,7 @@
-<script setup>
-
-
-// 
-</script>
 
 
 <template>
-  <span>CAMPUS BUILDINGS</span>
+    <h1>Rooms</h1>
 </template>
 
 <route lang="yaml">

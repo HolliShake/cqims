@@ -5,6 +5,7 @@ const defaultData = () => ({
   schoolName: "",
   schoolShortName: "",
   schoolNumber: "",
+  schoolDescription: "",
 })
 
 const useSchoolStore = defineStore("SchoolStore", {
@@ -42,7 +43,7 @@ const useSchoolStore = defineStore("SchoolStore", {
         school,
       )
     },
-    async deleteSchool(school) {
+    async removeSchool(school) {
       remove(
         this.schools,
         school,

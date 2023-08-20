@@ -17,6 +17,7 @@ const props = defineProps({
 // 👉 Router
 const router = useRouter()
 
+// 👉 Page data
 const computedPageData = computed(() => { 
   try {
     return JSON.parse(localStorage.getItem("selectedSchool"))
@@ -36,14 +37,14 @@ const breadCrumbs = computed(() => {
       disabled: false,
       href: "/dashboard",
     },
-    {
-      text: "School",
-      disabled: false,
-      href: "/system/school",
-    },
+    // {
+    //   text: "School",
+    //   disabled: false,
+    //   href: "/system/school",
+    // },
     {
       text: schoolName,
-      disabled: true,
+      disabled: false,
       href: "#",
     },
     {
@@ -126,7 +127,7 @@ async function onDelete(campus) {
 
         if (response.status >= 200 && response.status <= 299)
         {
-          await onSuccessDelete(school)
+          await onSuccessDelete(campus)
         } else 
         {
           toast.error(response.message)
@@ -137,6 +138,23 @@ async function onDelete(campus) {
     })
 }
 
+// 👉 On success create
+async function onSuccessCreate(campus) {
+  await campusStore.appendCampus(campus)
+  toast.success("Campus created successfully!")
+}
+
+// 👉 On success update
+async function onSuccessUpdate(campus) {
+  await campusStore.patchCampus(campus)
+  toast.success("Campus updated successfully!")
+}
+
+// 👉 On success delete
+async function onSuccessDelete(campus) {
+  await campusStore.removeCampus(campus)
+  toast.success("Campus deleted successfully!")
+}
 
 onMounted(async () => {
   const ID = helpers.security.decrypt(props.id)
@@ -154,7 +172,7 @@ onMounted(async () => {
   try {
     const response = await campusService.getSchoolCampuses(ID)
 
-    if (response.status >= 200 && response.status <= 299)
+    if (response.status === 200)
     {
       campusStore.setCampuses(response.data)
       loaded.value = true
@@ -162,12 +180,15 @@ onMounted(async () => {
     {
       toast.error(response.message)
     }
-
   } catch (err) {
     toast.error(err.message)
   }
 })
 
+// 👉 Handle link
+async function handleLink(campus) {
+  localStorage.setItem("selectedCampus", JSON.stringify(campus))
+}
 //
 </script>
 
@@ -237,20 +258,22 @@ onMounted(async () => {
         </template>
         <!-- 👉 Location -->
         <template #item.location="{ item }">
-          <VIcon
-            start
-            icon="mdi-map-marker"
-            size="19"
-            dd
-            color="error"
-          />
-          <span>{{ item.raw.zipCode.barangay }} {{ item.raw.zipCode.city }} {{ item.raw.zipCode.province }}, {{ item.raw.zipCode.country }}</span>
+          <div class="demo-space-x flex-nowrap flex-row align-center">
+            <VIcon
+              start
+              icon="mdi-map-marker"
+              size="19"
+              dd
+              color="error"
+            />
+            <span class="text-no-wrap">{{ item.raw.barangay }} {{ item.raw.city }} {{ item.raw.province }}, {{ item.raw.country }}</span>
+          </div>
         </template>
         <!-- 👉 Acton -->
         <template #item.action="{ item }">
           <RouterLink
             :to="{
-              name: 'system-school-id-campuses-campusid-building',
+              name: 'system-school-id-campuses-campusid-buildings',
               params: {
                 id: props.id,
                 campusid: helpers.security.encrypt(item.raw.id)
@@ -262,7 +285,7 @@ onMounted(async () => {
               icon="tabler-building" 
               variant="text"
               size="small"
-              @click.stop=""
+              @click.stop="handleLink(item.raw)"
             >
               <VIcon
                 icon="tabler-building"
@@ -295,6 +318,8 @@ onMounted(async () => {
       <CampusModal
         v-model="isCampusModalVisible"
         :school-id="computedPageData?.id ?? null"
+        @success:create="onSuccessCreate"
+        @success:update="onSuccessUpdate"
       />
     </Teleport>
   </section>

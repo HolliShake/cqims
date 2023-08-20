@@ -1,9 +1,8 @@
 <!-- eslint-disable vue/custom-event-name-casing -->
 <script setup>
-import { helpers } from "@/helpers"
 import CampusService from "@/services/campus.service"
 import useCampusStore from "@/stores/campus.store"
-import { alphaValidator, requiredValidator } from '@core/utils/validators'
+import { alphaDashValidator, integerValidator, requiredValidator } from '@core/utils/validators'
 import { cloneDeep } from "lodash"
 import { inject, watch } from "vue"
 
@@ -12,6 +11,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  schoolId: {
+    type: [Number, null],
+    required: true
+  }
 })
 
 const emit = defineEmits([
@@ -32,22 +35,20 @@ const visible = ref(false)
 // 👉 Form
 const refVForm = ref()
 
-// 👉 Submitted
-const submitted = ref(false)
-
 // 👉 Form state
 const formState = ref()
 
 // 👉 Form error
 const formError = ref({
-  Barangay: [],
-  City: [],
-  Province: [],
-  Region: [],
-  Country: [],
   CampusName: [],
   CampusShortName: [],
-  ZipCodeId: [],
+  CampusDescription: [],
+  Barangay: [],
+  Province: [],
+  City: [],
+  Country: [],
+  ZipCode: [],
+  Region: []
 })
 
 // 👉 Computed is update flag
@@ -68,33 +69,31 @@ watch(visible, visible => {
   emit('update:modelValue', visible)
 })
 
-// 👉 Watch school model
-watch(visible, visible => {
+// 👉 Watch campus model
+watch(visible, async visible => {
   if (!visible) return setTimeout(() => campusStore.unsetCampusModel(), 100)
 
   // Set
   formState.value = cloneDeep(campusStore.getCampusModel)
 
-  if (isUpdateMode.value)
+  if (!isUpdateMode.value)
   {
-    const zipCode = formState.value.zipCode
-    delete formState.value['zipCode']
-    formState.value = {
-      ...(formState.value),
-      ...(zipCode)
-    }
+    formState.value.schoolId = props.schoolId
   }
 }, { deep: true })
 
 // 👉 On submit
 async function onSubmit() {
-  if (await refVForm.value.validate() && submitted.value) (!isUpdateMode.value) ? await onCreate() : await onUpdate()
+  if (await refVForm.value.validate()) (!isUpdateMode.value) ? await onCreate() : await onUpdate()
 }
 
 // 👉 On create campus
 async function onCreate() {
   try {
     const response = await campusService.createCampus(formState.value)
+
+    if (response.data.error)
+      return toast.error(response.data.errorMessage)
 
     if (response.status >= 200 && response.status <= 299)
     {
@@ -103,19 +102,20 @@ async function onCreate() {
     }
     else
     {
-      toast.error(response.response?.data?.errors ?? "Error")
+      toast.error(response.message)
     }
   } catch (err) {
-    console.log(err);
-    toast.error(err.message)
-    formError.value = err.response?.data?.errors ?? formError.value
+     formError.value = err.response?.data?.errors ?? formError.value
   }
 }
 
 // 👉 On update campus
 async function onUpdate() {
   try {
-    const response = await schoolService.updateSchool(formState.value.id, formState.value)
+    const response = await campusService.updateCampus(formState.value.id, formState.value)
+
+    if (response.data.error)
+      return toast.error(response.data.errorMessage)
 
     if (response.status >= 200 && response.status <= 299)
     {
@@ -124,12 +124,11 @@ async function onUpdate() {
     }
     else
     {
-      toast.error(response.response?.data?.errors ?? "Error")
+      toast.error(response.message)
     }
   } catch (err) {
-    toast.error(err.message)
     formError.value = err.response?.data?.errors ?? formError.value
-  }
+ }
 }
 // 
 </script>
@@ -143,7 +142,6 @@ async function onUpdate() {
     <template #content>
       <VForm
         ref="refVForm"
-        v-model="submitted"
       >
         <VRow>
           <VCol
@@ -154,7 +152,7 @@ async function onUpdate() {
               v-model="formState.campusName"
               label="Campus Name"
               :rules="[requiredValidator]"
-              :error-messages="formError.campusName"
+              :error-messages="formError.CampusName"
             />
           </VCol>
           <VCol
@@ -164,7 +162,7 @@ async function onUpdate() {
             <VTextField
               v-model="formState.campusShortName"
               label="Short Name"
-              :rules="[requiredValidator, alphaValidator]"
+              :rules="[requiredValidator, alphaDashValidator]"
               :error-messages="formError.CampusShortName"
             />
           </VCol>
@@ -187,7 +185,7 @@ async function onUpdate() {
               :error-messages="formError.Province"
             />
           </VCol>
-          <VCol cols="7">
+          <VCol cols="7" md="4">
             <VTextField
               v-model="formState.city"
               label="City"
@@ -195,16 +193,34 @@ async function onUpdate() {
               :error-messages="formError.City"
             />
           </VCol>
-          <VCol cols="5">
+          <VCol cols="5" md="4">
+            <VTextField
+              v-model="formState.zipCode"
+              label="Zip Code"
+              :rules="[requiredValidator, integerValidator]"
+              :error-messages="formError.ZipCode"
+            />
+          </VCol>
+          <VCol cols="12" md="4">
             <VTextField
               v-model="formState.region"
               label="Region"
-              :rules="[requiredValidator]"
+              :rules="[requiredValidator, integerValidator]"
               :error-messages="formError.Region"
             />
           </VCol>
           <VCol cols="12">
-           <SelectCountry v-model="formState.country" />
+           <SelectCountry v-model="formState.country" :error-messages="formError.Country" />
+          </VCol>
+           <VCol cols="12">
+            <VTextarea
+              v-model="formState.campusDescription"
+              label="Description"
+              :rows="2"
+              auto-grow
+              :rules="[requiredValidator]"
+              :error-messages="formError.Description"
+            />
           </VCol>
         </VRow>
       </VForm>
@@ -213,7 +229,6 @@ async function onUpdate() {
       <VBtn
         variant="elevated"
         :color="(!isUpdateMode) ? 'primary' : 'secondary'"
-        :block="$vuetify.display.mdAndDown"
         @click="onSubmit"
       >
         <VIcon

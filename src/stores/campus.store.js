@@ -1,15 +1,17 @@
+import { merge, remove } from "lodash"
 import { defineStore } from "pinia"
 
 const defaultData = () => ({
-  barangay: "",
-  city: "",
-  province: "",
-  region: "",
-  country: "",
   campusName: "",
   campusShortName: "",
-  schoolId: 0,
-  zipCodeId: 0,
+  campusDescription: "",
+  barangay: "",
+  province: "",
+  city: "",
+  country: "",
+  zipCode: 0,
+  region: 0,
+  schoolId: 0
 })
 
 const useCampusStore = defineStore("CampusStore", {
@@ -37,6 +39,21 @@ const useCampusStore = defineStore("CampusStore", {
   actions: {
     async setCampuses(campuses) {
       this.campuses = campuses
+    },
+     async appendCampus(campus) {
+      this.campuses.push(campus)
+    },
+    async patchCampus(campus) {
+      merge(
+        this.campuses.find(c => c.id == campus.id),
+        campus,
+      )
+    },
+    async removeCampus(campus) {
+      remove(
+        this.campuses,
+        campus,
+      )
     },
     async setCampusModel(campusModel, updateMode) { 
       this.campusModel = campusModel

@@ -1,17 +1,18 @@
-import axiosIns from "@/plugins/axios"
+import axiosIns from "@/plugins/axios";
 
 class Auth {
 
   constructor() {
-    this.endPoint = "/Core/Authentication"
+    this.endPoint = "/Core/Auth"
   }
     
   async login(payload) {
-    return await axiosIns.post(this.endPoint + '/login', payload)
+    console.log(payload);
+    return await axiosIns.post(this.endPoint + '/Login', payload)
   }
     
   async register(payload) {
-    return await axiosIns.post(this.endPoint + '/register', payload)
+    return await axiosIns.post(this.endPoint + '/Register', payload)
   }
     
   async confirmEmail(payload) {

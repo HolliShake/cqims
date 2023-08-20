@@ -116,19 +116,18 @@ async function onSuccessUpdate(school) {
 
 // 👉 On delete successfully
 async function onSuccessDelete(school) {
-  schoolStore.deleteSchool(school)
+  schoolStore.removeSchool(school)
   toast.success("Successfully deleted school")
 }
 
 onMounted(async () => {
   try {
     const response = await schoolService.getAllSchool()
-
-    ;(loaded.value = true)
-    
+  
     if (response.status === 200)
     {
       schoolStore.setSchools(response.data)
+      loaded.value = true
     } else {
       toast.error(response.message)
     }

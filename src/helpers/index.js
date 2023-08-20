@@ -1,6 +1,6 @@
 import CryptoJS from "crypto-js"
 
-const SALT = "S@lt_pr06raWW3r"
+const SALT = "S@lt"
 const KEY = "Dt0!usTp"
 
 export const helpers =  Object.freeze({
@@ -13,6 +13,7 @@ export const helpers =  Object.freeze({
       }
     },
     decrypt: function (text) { 
+      text = text.toString()
       try {
         const bytes =
             CryptoJS.AES.decrypt(text, KEY)

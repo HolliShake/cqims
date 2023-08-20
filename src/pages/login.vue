@@ -56,6 +56,7 @@ async function onLogin(e) {
     }
     
   } catch (err) {
+    console.log(err);
     ;(toast.error(err.message))
     ;(errorMessage.value = err.response?.data)
   }
