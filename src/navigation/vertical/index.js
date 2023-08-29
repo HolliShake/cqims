@@ -23,6 +23,19 @@ export default [
     ],
   },
   {
+    title: 'Registrar',
+    icon: { icon: 'tabler-user' },
+    children: [
+      {
+        title: 'Fees',
+        to: { name: 'finance-fees' },
+        icon: { icon: 'tabler-receipt-2', size: SUB_ICON_SIZE },
+        subject: 'Auth',
+        action: 'read',
+      },
+    ],
+  },
+  {
     title: 'System',
     icon: { icon: 'tabler-adjustments-cog' },
     children: [

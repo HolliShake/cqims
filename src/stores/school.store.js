@@ -1,4 +1,4 @@
-import { merge, remove } from "lodash"
+import { cloneDeep, merge, remove } from "lodash"
 import { defineStore } from "pinia"
 
 const defaultData = () => ({
@@ -12,10 +12,7 @@ const useSchoolStore = defineStore("SchoolStore", {
 
   state: () => ({
     schools: [],
-    isUpdate: false,
-    schoolModel: {
-     ...defaultData(),
-    },
+    schoolModel: defaultData(),
   }),
 
   getters: {
@@ -23,38 +20,33 @@ const useSchoolStore = defineStore("SchoolStore", {
       return this.schools
     },
     getSchoolModel() {
-      return this.schoolModel
-    },
-    getIsUpdateMode() {
-      return this.isUpdate
+      return cloneDeep(this.schoolModel)
     },
   },
   
   actions: {
-    async setSchools(schoolsArray) {
+    async initialize(schoolsArray) {
       this.schools = schoolsArray
     },
-    async appendSchool(school) {
+    async add(school) {
       this.schools.push(school)
     },
-    async patchSchool(school) {
+    async update(school) {
       merge(
         this.schools.find(s => s.id == school.id),
         school,
       )
     },
-    async removeSchool(school) {
+    async delete(school) {
       remove(
         this.schools,
         school,
       )
     },
-    async setSchoolModel(school, updateMode) {
+    async setField(school) {
       this.schoolModel = school
-      this.isUpdate = updateMode ?? this.isUpdate
     },
-    async unsetSchoolModel() {
-      this.isUpdate = false
+    async resetField() {
       this.schoolModel = defaultData()
     },
   },

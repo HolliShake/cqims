@@ -1,10 +1,8 @@
-
-
 <!-- eslint-disable vue/custom-event-name-casing -->
 <script setup>
-import BuildingService from "@/services/building.service"
-import useBuildingStore from "@/stores/building.store"
-import { alphaDashValidator, betweenValidator, integerValidator, requiredValidator } from '@core/utils/validators'
+import RoomService from "@/services/room.service"
+import useRoomStore from "@/stores/room.store"
+import { integerValidator, alphaDashValidator, requiredValidator } from '@core/utils/validators'
 import { cloneDeep } from "lodash"
 import { inject, watch } from "vue"
 
@@ -13,7 +11,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  campusId: {
+  buildingId: {
     type: [Number, null],
     required: true,
   },
@@ -23,14 +21,13 @@ const emit = defineEmits([
   'update:modelValue',
   'success:create',
   'success:update',
-  'success:delete',
 ])
 
 // 👉 Services
-const buildingService = new BuildingService()
+const roomService = new RoomService()
 
 // 👉 Store
-const buildingStore = useBuildingStore()
+const roomStore = useRoomStore()
 
 // 👉 Visibility
 const visible = ref(false)
@@ -43,16 +40,15 @@ const formState = ref()
 
 // 👉 Form error
 const formError = ref({
-  BuildingName: [],
-  BuildingShortName: [],
-  BuildingNumber: [],
-  BuildingDescription: [],
-  NumberOfFloors: [],
+  RoomName: [],
+  RoomShortName: [],
+  RoomDescription: [],
+  FloorNumber: [],
 })
 
 // 👉 Computed is update flag
 const isUpdateMode = computed(() => { 
-  return buildingStore.getIsUpdateMode
+  return roomStore.getIsUpdateMode
 })
 
 // 👉 Loaded flag
@@ -60,9 +56,6 @@ const loaded = ref(!isUpdateMode.value)
 
 // 👉 Toast
 const toast = inject('toast')
-
-// 👉 Swal
-const swal = inject("swal")
 
 // 👉 Watch props
 watch(props, props => {
@@ -74,20 +67,20 @@ watch(visible, visible => {
   emit('update:modelValue', visible)
 })
 
-// 👉 Watch building model
+// 👉 Watch campus model
 watch(visible, async visible => {
-  if (!visible) return setTimeout(() => buildingStore.unsetBuildingModel(), 100)
+  if (!visible) return setTimeout(() => campusStore.unsetCampusModel(), 100)
 
   // Set
-  formState.value = cloneDeep(buildingStore.getBuildingModel)
+  formState.value = cloneDeep(roomStore.getRoomModel)
 
   if (!isUpdateMode.value)
   {
-    formState.value.campusId = props.campusId
+    formState.value.buildingId = props.buildingId
   } else {
     loaded.value = false
     try {
-      const response = await buildingService.getBuildingById(formState.value.id)
+      const response = await roomService.getRoomById(formState.value.id)
 
       if (response.status === 200)
       {
@@ -112,7 +105,10 @@ async function onSubmit() {
 // 👉 On create campus
 async function onCreate() {
   try {
-    const response = await buildingService.createBuilding(formState.value)
+    const response = await roomService.createRoom(formState.value)
+
+    if (response.data.error)
+      return toast.error(response.data.errorMessage)
 
     if (response.status >= 200 && response.status <= 299)
     {
@@ -121,7 +117,7 @@ async function onCreate() {
     }
     else
     {
-      toast.error(response.response?.data?.errors ?? "Error")
+      toast.error(response.message)
     }
   } catch (err) {
     formError.value = err.response?.data?.errors ?? formError.value
@@ -131,7 +127,7 @@ async function onCreate() {
 // 👉 On update campus
 async function onUpdate() {
   try {
-    const response = await buildingService.updateBuilding(formState.value.id, formState.value)
+    const response = await campusService.updateCampus(formState.value.id, formState.value)
 
     if (response.data.error)
       return toast.error(response.data.errorMessage)
@@ -150,43 +146,14 @@ async function onUpdate() {
   }
 }
 
-// 👉 On delete campus
-async function onDelete() {
-  swal.value.fire({
-    question: `Delete building "${ formState.value.buildingName }"?`,
-    dangerMode: true,
-  })
-    .then(async result => {
-      if (!result) return
-
-      try {
-        const response = await buildingService.deleteBuilding(formState.value.id)
-
-        if (response.data.error)
-          return toast.error(response.data.errorMessage)
-
-        if (response.status >= 200 && response.status <= 299)
-        {
-          emit("success:delete", formState.value)
-          visible.value = false
-        }
-        else
-        {
-          toast.error(response.message)
-        }
-      } catch (err) {
-        formError.value = err.response?.data?.errors ?? formError.value
-      }
-    })
-}
-
 // 
 </script>
+
 
 <template>
   <AppDialog v-model="visible">
     <template #title>
-      Building Details
+      Room Details
     </template>
     <template #content>
       <VForm ref="refVForm">
@@ -196,10 +163,10 @@ async function onDelete() {
             md="7"
           >
             <VTextField
-              v-model="formState.buildingName"
-              label="Building Name"
+              v-model="formState.roomName"
+              label="Room Name"
               :rules="[requiredValidator]"
-              :error-messages="formError.BuildingName"
+              :error-messages="formError.RoomName"
               :loading="!loaded"
             />
           </VCol>
@@ -208,45 +175,30 @@ async function onDelete() {
             md="5"
           >
             <VTextField
-              v-model="formState.buildingShortName"
+              v-model="formState.roomShortName"
               label="Short Name"
               :rules="[requiredValidator, alphaDashValidator]"
-              :error-messages="formError.BuildingShortName"
+              :error-messages="formError.RoomShortName"
               :loading="!loaded"
             />
           </VCol>
-          <VCol
-            cols="12"
-            md="6"
-          >
+          <VCol cols="12">
             <VTextField
-              v-model="formState.buildingNumber"
-              label="Building Number"
-              :rules="[requiredValidator, integerValidator, betweenValidator(formState.buildingNumber, 1, 999)]"
-              :error-messages="formError.BuildingNumber"
-              :loading="!loaded"
-            />
-          </VCol>
-          <VCol
-            cols="12"
-            md="6"
-          >
-            <VTextField
-              v-model="formState.numberOfFloors"
-              label="No. of Floors"
-              :rules="[requiredValidator, integerValidator, betweenValidator(formState.numberOfFloors, 1, 99)]"
-              :error-messages="formError.NumberOfFloors"
+              v-model="formState.floorNumber"
+              label="Floor No."
+              :rules="[requiredValidator, integerValidator]"
+              :error-messages="formError.FloorNumber"
               :loading="!loaded"
             />
           </VCol>
           <VCol cols="12">
             <VTextarea
-              v-model="formState.buildingDescription"
+              v-model="formState.roomDescription"
               label="Description"
               :rows="2"
               auto-grow
               :rules="[requiredValidator]"
-              :error-messages="formError.Description"
+              :error-messages="formError.RoomDescription"
               :loading="!loaded"
             />
           </VCol>
@@ -255,23 +207,8 @@ async function onDelete() {
     </template>
     <template #actions>
       <VBtn
-        v-if="isUpdateMode"
-        variant="elevated"
-        color="error"
-        :block="$vuetify.display.mdAndDown"
-        @click="onDelete"
-      >
-        <VIcon
-          start
-          icon="tabler-trash"
-        />
-        DELETE
-      </VBtn>
-      <VBtn
         variant="elevated"
         :color="(!isUpdateMode) ? 'primary' : 'secondary'"
-        :class="$vuetify.display.mdAndDown ? 'mt-5' : 'ms-3'"
-        :block="$vuetify.display.mdAndDown"
         @click="onSubmit"
       >
         <VIcon
@@ -283,5 +220,3 @@ async function onDelete() {
     </template>
   </AppDialog>
 </template>
-
-

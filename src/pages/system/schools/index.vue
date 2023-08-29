@@ -59,6 +59,9 @@ const loaded = ref(false)
 // 👉 Toast
 const isSchoolModalShown = ref(false)
 
+// 👉 Is update mode
+const isUpdateMode = ref(false)
+
 // 👉 Toast
 const toast = inject("toast")
 
@@ -68,12 +71,14 @@ const swal = inject("swal")
 // 👉 Create School
 async function onCreate() {
   isSchoolModalShown.value = true
+  isUpdateMode.value = false
 }
 
 // 👉 Update School
 async function onUpdate(schoolData) {
   isSchoolModalShown.value = true
-  schoolStore.setSchoolModel(schoolData.raw, true)
+  isUpdateMode.value = true
+  schoolStore.setField(schoolData.raw)
 }
 
 // 👉 Delete School
@@ -102,37 +107,25 @@ async function onDelete(school) {
     })
 }
 
-// 👉 On create successfully
-async function onSuccessCreate(school) {
-  schoolStore.appendSchool(school)
-  toast.success("Successfully created school")
-}
-
-// 👉 On update successfully
-async function onSuccessUpdate(school) {
-  schoolStore.patchSchool(school)
-  toast.success("Successfully updated school")
-}
-
 // 👉 On delete successfully
 async function onSuccessDelete(school) {
-  schoolStore.removeSchool(school)
+  schoolStore.delete(school)
   toast.success("Successfully deleted school")
 }
 
 onMounted(async () => {
   try {
-    const response = await schoolService.getAllSchool()
+    const { status: code, data: response, message: error } = await schoolService.getAllSchool()
   
-    if (response.status === 200)
+    if (code == 200)
     {
-      schoolStore.setSchools(response.data)
+      schoolStore.initialize(response)
       loaded.value = true
     } else {
-      toast.error(response.message)
+      toast.error(error)
     }
   } catch (err) {
-    toast.error(err.message)
+    toast.error(err.response?.data ?? err.message)
   }
 })
 
@@ -238,8 +231,7 @@ onMounted(async () => {
     <Teleport to="#app">
       <SchoolModal
         v-model="isSchoolModalShown"
-        @success:create="onSuccessCreate"
-        @success:update="onSuccessUpdate"
+        :is-update-mode="isUpdateMode"
       />
     </Teleport>
   </section>

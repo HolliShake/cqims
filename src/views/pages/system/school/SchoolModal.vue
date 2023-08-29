@@ -4,7 +4,6 @@ import { helpers } from "@/helpers"
 import SchoolService from "@/services/school.service"
 import useSchoolStore from "@/stores/school.store"
 import { alphaDashValidator, requiredValidator } from '@core/utils/validators'
-import { cloneDeep } from "lodash"
 import { inject, nextTick, watch } from "vue"
 
 const props = defineProps({
@@ -12,12 +11,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isUpdateMode: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits([
   'update:modelValue',
-  'success:create',
-  'success:update',
 ])
 
 // 👉 Services
@@ -44,7 +45,7 @@ const formError = ref({
 })
 
 const isUpdateMode = computed(() => { 
-  return schoolStore.getIsUpdateMode
+  return props.isUpdateMode
 })
 
 // 👉 Toast
@@ -60,12 +61,14 @@ watch(visible, visible => {
   emit('update:modelValue', visible)
 })
 
+// ==================================================================
+
 // 👉 Watch school model
 watch(visible, async visible => {
-  if (!visible) return setTimeout(() => schoolStore.unsetSchoolModel(), 100)
+  if (!visible) return schoolStore.resetField()
 
   // Set
-  formState.value = cloneDeep(schoolStore.getSchoolModel)
+  formState.value = schoolStore.getSchoolModel
 }, { deep: true })
 
 async function onSubmit() {
@@ -74,37 +77,40 @@ async function onSubmit() {
 
 async function onCreate() {
   try {
-    const response = await schoolService.createSchool(formState.value)
+    const { status: code, data: response, message: error } = await schoolService.createSchool(formState.value)
 
-    if (response.status >= 200 && response.status <= 299)
+    if (code == 200)
     {
-      emit('success:create', response.data)
+      schoolStore.add(response)
+      toast.success("Successfully created school")
+      
       visible.value = false
       reset()
     }
     else
     {
-      toast.error(response.response?.data?.errors ?? "Error")
+      toast.error(error)
     }
   } catch (err) {
-    toast.error(err.message)
     formError.value = err.response?.data?.errors ?? formError.value
   }
 }
 
 async function onUpdate() {
   try {
-    const response = await schoolService.updateSchool(formState.value.id, formState.value)
-
-    if (response.status >= 200 && response.status <= 299)
+    const { status: code, data: response, message: error } = await schoolService.updateSchool(formState.value.id, formState.value)
+    
+    if (code >= 200 && code <= 299)
     {
-      emit('success:update', response.data)
+      schoolStore.update(response)
+      toast.success("Successfully updated school")
+
       visible.value = false
       reset()
     }
     else
     {
-      toast.error(response.response?.data?.errors ?? "Error")
+      toast.error(error)
     }
   } catch (err) {
     formError.value = err.response?.data?.errors ?? formError.value
@@ -113,9 +119,15 @@ async function onUpdate() {
 
 // 👉 Reset
 async function reset() {
+  formError.value = ({
+    SchoolName: [],
+    SchoolShortName: [],
+    SchoolNumber: [],
+    SchoolDescription: [],
+  })
   await nextTick(() => { 
     refVForm.value.resetValidation()
-    refVForm.value.reset()  
+    refVForm.value.reset()
   })
 }
 
@@ -134,9 +146,7 @@ async function setSelectedSchool() {
       School Details
     </template>
     <template #content>
-      <VForm
-        ref="refVForm"
-      >
+      <VForm ref="refVForm">
         <VRow>
           <VCol
             cols="12"

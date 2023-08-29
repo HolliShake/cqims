@@ -1,11 +1,11 @@
 <script setup>
-import { helpers } from "@/helpers";
-import BuildingService from "@/services/building.service";
-import useBuildingStore from "@/stores/building.store";
-import BuildingCard from "@/views/pages/system/building/BuildingCard.vue";
-import BuildingModal from "@/views/pages/system/building/BuildingModal.vue";
-import { inject } from "vue";
-import { useRouter } from "vue-router";
+import { helpers } from "@/helpers"
+import BuildingService from "@/services/building.service"
+import useBuildingStore from "@/stores/building.store"
+import BuildingCard from "@/views/pages/system/building/BuildingCard.vue"
+import BuildingModal from "@/views/pages/system/building/BuildingModal.vue"
+import { inject } from "vue"
+import { useRouter } from "vue-router"
 
 const props = defineProps({
   id: {
@@ -47,6 +47,7 @@ const breadCrumbs = computed(() => {
       disabled: false,
       href: "/dashboard",
     },
+
     // {
     //   text: "School",
     //   disabled: false,
@@ -194,7 +195,7 @@ onMounted(async () => {
     <VRow>
       <VCol cols="12">
         <VCard>
-          <VCardText>
+          <VCardText class="pa-3">
             <VRow>
               <VCol 
                 cols="8" 
@@ -220,8 +221,14 @@ onMounted(async () => {
                 md="auto"
                 class="ms-auto"
               >
-                <VBtn block @click="onCreate">
-                  <VIcon start icon="tabler-plus" />
+                <VBtn
+                  block
+                  @click="onCreate"
+                >
+                  <VIcon
+                    start
+                    icon="tabler-plus"
+                  />
                   CREATE
                 </VBtn>
               </VCol>
@@ -229,16 +236,33 @@ onMounted(async () => {
           </VCardText>
         </VCard>
       </VCol>
-      <VCol cols="12" v-if="!loaded">
+      <VCol
+        v-if="!loaded"
+        cols="12"
+      >
         <VSkeletonLoader type="table" />
       </VCol>
       <template v-else>
-        <VCard v-if="pagedData.length <= 0">
-          <VCardText class="text-center">
-            No data available
-          </VCardText>
-        </VCard>
-        <VCol v-else v-for="(item, index) in pagedData" :key="`card-${index}`" cols="*" sm="6" md="6" lg="4" xl="3">
+        <VCol
+          v-if="pagedData.length <= 0"
+          cols="12"
+        >
+          <VCard>
+            <VCardText class="text-center">
+              No data available
+            </VCardText>
+          </VCard>
+        </VCol>
+        <VCol
+          v-for="(item, index) in pagedData"
+          v-else
+          :key="`card-${index}`"
+          cols="*"
+          sm="6"
+          md="6"
+          lg="4"
+          xl="3"
+        >
           <BuildingCard 
             :building-id="item.id" 
             :building-number="item.buildingNumber" 

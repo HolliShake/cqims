@@ -3,24 +3,21 @@
 import CampusService from "@/services/campus.service"
 import useCampusStore from "@/stores/campus.store"
 import { alphaDashValidator, integerValidator, requiredValidator } from '@core/utils/validators'
-import { cloneDeep } from "lodash"
-import { inject, watch } from "vue"
+import { inject, nextTick, watch } from "vue"
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
     default: false,
   },
-  schoolId: {
-    type: [Number, null],
-    required: true
-  }
+  isUpdateMode: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits([
   'update:modelValue',
-  'success:create',
-  'success:update',
 ])
 
 // 👉 Services
@@ -48,13 +45,16 @@ const formError = ref({
   City: [],
   Country: [],
   ZipCode: [],
-  Region: []
+  Region: [],
 })
 
 // 👉 Computed is update flag
 const isUpdateMode = computed(() => { 
-  return campusStore.getIsUpdateMode
+  return props.isUpdateMode
 })
+
+// 👉 Loaded flag
+const loaded = ref(!isUpdateMode.value)
 
 // 👉 Toast
 const toast = inject('toast')
@@ -71,15 +71,10 @@ watch(visible, visible => {
 
 // 👉 Watch campus model
 watch(visible, async visible => {
-  if (!visible) return setTimeout(() => campusStore.unsetCampusModel(), 100)
+  if (!visible) return campusStore.resetField()
 
   // Set
-  formState.value = cloneDeep(campusStore.getCampusModel)
-
-  if (!isUpdateMode.value)
-  {
-    formState.value.schoolId = props.schoolId
-  }
+  formState.value = campusStore.getCampusModel
 }, { deep: true })
 
 // 👉 On submit
@@ -90,46 +85,71 @@ async function onSubmit() {
 // 👉 On create campus
 async function onCreate() {
   try {
-    const response = await campusService.createCampus(formState.value)
+    const { status: code, data: response, message: error } = await campusService.createCampus(formState.value)
 
-    if (response.data.error)
-      return toast.error(response.data.errorMessage)
+    if (response.error)
+      return toast.error(response.errorMessage)
 
-    if (response.status >= 200 && response.status <= 299)
+    if (code >= 200 && code <= 299)
     {
-      emit('success:create', response.data)
+      campusStore.add(response)
+      toast.success("Campus successfully created.")
+
       visible.value = false
+      reset()
     }
     else
     {
-      toast.error(response.message)
+      toast.error(error)
     }
   } catch (err) {
-     formError.value = err.response?.data?.errors ?? formError.value
+    formError.value = err.response?.data?.errors ?? formError.value
   }
 }
 
 // 👉 On update campus
 async function onUpdate() {
   try {
-    const response = await campusService.updateCampus(formState.value.id, formState.value)
+    const { status: code, data: response, message: error } = await campusService.updateCampus(formState.value.id, formState.value)
 
-    if (response.data.error)
-      return toast.error(response.data.errorMessage)
+    if (response.error)
+      return toast.error(response.errorMessage)
 
-    if (response.status >= 200 && response.status <= 299)
+    if (code >= 200 && code <= 299)
     {
-      emit('success:update', response.data)
+      campusStore.update(response)
+      toast.success("Campus successfully updated.")
+
       visible.value = false
+      reset()
     }
     else
     {
-      toast.error(response.message)
+      toast.error(error)
     }
   } catch (err) {
     formError.value = err.response?.data?.errors ?? formError.value
- }
+  }
 }
+
+async function reset() {
+  formError.value = ({
+    CampusName: [],
+    CampusShortName: [],
+    CampusDescription: [],
+    Barangay: [],
+    Province: [],
+    City: [],
+    Country: [],
+    ZipCode: [],
+    Region: [],
+  })
+  await nextTick(() => {
+    refVForm.value.reset()
+    refVForm.value.resetValidation()
+  })
+}
+
 // 
 </script>
 
@@ -140,9 +160,7 @@ async function onUpdate() {
       Campus Details
     </template>
     <template #content>
-      <VForm
-        ref="refVForm"
-      >
+      <VForm ref="refVForm">
         <VRow>
           <VCol
             cols="12"
@@ -153,6 +171,7 @@ async function onUpdate() {
               label="Campus Name"
               :rules="[requiredValidator]"
               :error-messages="formError.CampusName"
+              :loading="!loaded"
             />
           </VCol>
           <VCol
@@ -164,9 +183,13 @@ async function onUpdate() {
               label="Short Name"
               :rules="[requiredValidator, alphaDashValidator]"
               :error-messages="formError.CampusShortName"
+              :loading="!loaded"
             />
           </VCol>
-          <VCol cols="12" class="py-0">
+          <VCol
+            cols="12"
+            class="py-0"
+          >
             <LabeledDivider title="Location & Address" />
           </VCol>
           <VCol cols="12">
@@ -175,44 +198,61 @@ async function onUpdate() {
               label="Barangay"
               :rules="[requiredValidator]"
               :error-messages="formError.Barangay"
+              :loading="!loaded"
             />
           </VCol>
-           <VCol cols="12">
+          <VCol cols="12">
             <VTextField
               v-model="formState.province"
               label="Province"
               :rules="[requiredValidator]"
               :error-messages="formError.Province"
+              :loading="!loaded"
             />
           </VCol>
-          <VCol cols="7" md="4">
+          <VCol
+            cols="7"
+            md="4"
+          >
             <VTextField
               v-model="formState.city"
               label="City"
               :rules="[requiredValidator]"
               :error-messages="formError.City"
+              :loading="!loaded"
             />
           </VCol>
-          <VCol cols="5" md="4">
+          <VCol
+            cols="5"
+            md="4"
+          >
             <VTextField
               v-model="formState.zipCode"
               label="Zip Code"
               :rules="[requiredValidator, integerValidator]"
               :error-messages="formError.ZipCode"
+              :loading="!loaded"
             />
           </VCol>
-          <VCol cols="12" md="4">
+          <VCol
+            cols="12"
+            md="4"
+          >
             <VTextField
               v-model="formState.region"
               label="Region"
               :rules="[requiredValidator, integerValidator]"
               :error-messages="formError.Region"
+              :loading="!loaded"
             />
           </VCol>
           <VCol cols="12">
-           <SelectCountry v-model="formState.country" :error-messages="formError.Country" />
+            <SelectCountry
+              v-model="formState.country"
+              :error-messages="formError.Country"
+            />
           </VCol>
-           <VCol cols="12">
+          <VCol cols="12">
             <VTextarea
               v-model="formState.campusDescription"
               label="Description"
@@ -220,6 +260,7 @@ async function onUpdate() {
               auto-grow
               :rules="[requiredValidator]"
               :error-messages="formError.Description"
+              :loading="!loaded"
             />
           </VCol>
         </VRow>

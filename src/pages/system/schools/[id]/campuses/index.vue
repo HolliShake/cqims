@@ -37,6 +37,7 @@ const breadCrumbs = computed(() => {
       disabled: false,
       href: "/dashboard",
     },
+
     // {
     //   text: "School",
     //   disabled: false,
@@ -96,6 +97,9 @@ const loaded = ref(false)
 // 👉 Campus modal visibility
 const isCampusModalVisible = ref(false)
 
+// 👉 Is update mode
+const isUpdateMode = ref(false)
+
 // 👉 Toast
 const toast = inject("toast")
 
@@ -105,12 +109,14 @@ const swal = inject("swal")
 // 👉 On create
 async function onCreate() {
   isCampusModalVisible.value = true
+  isUpdateMode.value = false
 }
 
 // 👉 On update
 async function onUpdate(campusData) {
   isCampusModalVisible.value = true
-  campusStore.setCampusModel(campusData.raw, true)
+  isUpdateMode.value = true
+  campusStore.setField(campusData.raw)
 }
 
 // 👉 On delete
@@ -138,18 +144,6 @@ async function onDelete(campus) {
     })
 }
 
-// 👉 On success create
-async function onSuccessCreate(campus) {
-  await campusStore.appendCampus(campus)
-  toast.success("Campus created successfully!")
-}
-
-// 👉 On success update
-async function onSuccessUpdate(campus) {
-  await campusStore.patchCampus(campus)
-  toast.success("Campus updated successfully!")
-}
-
 // 👉 On success delete
 async function onSuccessDelete(campus) {
   await campusStore.removeCampus(campus)
@@ -169,19 +163,21 @@ onMounted(async () => {
     return router.push("/notfound")
   }
 
-  try {
-    const response = await campusService.getSchoolCampuses(ID)
+  campusStore.setSchool(ID)
 
-    if (response.status === 200)
+  try {
+    const { status: code, data: response, message: error } = await campusService.getSchoolCampuses(ID)
+
+    if (code == 200)
     {
-      campusStore.setCampuses(response.data)
+      campusStore.initialize(response)
       loaded.value = true
     } else 
     {
-      toast.error(response.message)
+      toast.error(error)
     }
   } catch (err) {
-    toast.error(err.message)
+    toast.error(err.response?.data ?? err.message)
   }
 })
 
@@ -189,6 +185,7 @@ onMounted(async () => {
 async function handleLink(campus) {
   localStorage.setItem("selectedCampus", JSON.stringify(campus))
 }
+
 //
 </script>
 
@@ -226,7 +223,10 @@ async function handleLink(campus) {
             md="auto"
             class="ms-0 ms-md-auto"
           >
-            <VBtn block @click="onCreate">
+            <VBtn
+              block
+              @click="onCreate"
+            >
               <VIcon
                 start
                 icon="tabler-location-plus"
@@ -298,17 +298,17 @@ async function handleLink(campus) {
           </RouterLink>
 
           <VBtn 
-              icon="tabler-trash" 
-              variant="text"
-              size="small"
+            icon="tabler-trash" 
+            variant="text"
+            size="small"
+            color="error"
+            @click.stop="onDelete(item.raw)"
+          >
+            <VIcon
+              icon="tabler-trash"
               color="error"
-              @click.stop="onDelete(item.raw)"
-            >
-              <VIcon
-                icon="tabler-trash"
-                color="error"
-              />
-            </VBtn>
+            />
+          </VBtn>
         </template>
       </AppTable>
     </VCard>
@@ -317,9 +317,7 @@ async function handleLink(campus) {
     <Teleport to="#app">
       <CampusModal
         v-model="isCampusModalVisible"
-        :school-id="computedPageData?.id ?? null"
-        @success:create="onSuccessCreate"
-        @success:update="onSuccessUpdate"
+        :is-update-mode="isUpdateMode"
       />
     </Teleport>
   </section>

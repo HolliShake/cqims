@@ -1,5 +1,5 @@
 <script setup>
-import avatar1 from '@images/avatars/avatar-1.png';
+import avatar1 from '@images/avatars/avatar-1.png'
 
 
 const computedData = computed(() => { 
@@ -8,7 +8,7 @@ const computedData = computed(() => {
   } catch (err) {
     return ({
       fullName: "Guest",
-      access: "guest"
+      access: "guest",
     })
   }
 })
@@ -105,7 +105,10 @@ async function onLogout() {
           <VDivider class="my-2" />
 
           <!-- 👉 Logout -->
-          <VListItem to="/login" @click="onLogout">
+          <VListItem
+            to="/login"
+            @click="onLogout"
+          >
             <template #prepend>
               <VIcon
                 class="me-2"

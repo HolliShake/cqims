@@ -1,4 +1,4 @@
-import { merge, remove } from "lodash"
+import { cloneDeep, merge, remove } from "lodash"
 import { defineStore } from "pinia"
 
 const defaultData = () => ({
@@ -11,17 +11,15 @@ const defaultData = () => ({
   country: "",
   zipCode: 0,
   region: 0,
-  schoolId: 0
+  schoolId: 0,
 })
 
 const useCampusStore = defineStore("CampusStore", {
 
   state: () => ({
     campuses: [],
-    isUpdate: false,
-    campusModel: {
-      ...defaultData(),
-    },
+    campusModel: defaultData(),
+    schoolId: null,
   }),
 
   getters: {
@@ -29,40 +27,48 @@ const useCampusStore = defineStore("CampusStore", {
       return this.campuses
     },
     getCampusModel() {
-      return this.campusModel
+      const model = /**/
+        cloneDeep(this.campusModel)
+      
+      model.schoolId = this.schoolId
+
+      return model
     },
-    getIsUpdateMode() {
-      return this.isUpdate
-    }
+    getSchool() {
+      return this.schoolId
+    },
   },
     
   actions: {
-    async setCampuses(campuses) {
-      this.campuses = campuses
+    async initialize(campusesArray) {
+      this.campuses = campusesArray
     },
-     async appendCampus(campus) {
+    async add(campus) {
       this.campuses.push(campus)
     },
-    async patchCampus(campus) {
+    async update(campus) {
       merge(
         this.campuses.find(c => c.id == campus.id),
         campus,
       )
     },
-    async removeCampus(campus) {
+    async delete(campus) {
       remove(
         this.campuses,
         campus,
       )
     },
-    async setCampusModel(campusModel, updateMode) { 
+    async setField(campusModel) { 
       this.campusModel = campusModel
-      this.isUpdate = updateMode ?? this.isUpdate
     },
-    async unsetCampusModel() { 
-      this.isUpdate = false
+    async resetField() { 
       this.campusModel = defaultData()
-    }
+    },
+
+    // 
+    async setSchool(schoolId) {
+      this.schoolId = schoolId
+    },
   },
     
 })
