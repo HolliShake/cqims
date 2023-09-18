@@ -1,15 +1,7 @@
-
-
-<script setup>
-
-// 
-</script>
-
-
 <template>
   <VCard>
     <VCardText>
-      <h3>INSTRUMENTS COMMING SOON!</h3>
+      <h3>EXAMINATION COMMING SOON!</h3>
     </VCardText>
   </VCard>
 </template>

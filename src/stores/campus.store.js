@@ -1,4 +1,4 @@
-import { cloneDeep, merge, remove } from "lodash"
+import { cloneDeep, merge } from "lodash"
 import { defineStore } from "pinia"
 
 const defaultData = () => ({
@@ -53,10 +53,7 @@ const useCampusStore = defineStore("CampusStore", {
       )
     },
     async delete(campus) {
-      remove(
-        this.campuses,
-        campus,
-      )
+      this.campuses = this.campuses.filter(c => c.id != campus.id)
     },
     async setField(campusModel) { 
       this.campusModel = campusModel

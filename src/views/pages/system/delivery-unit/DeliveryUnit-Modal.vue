@@ -1,8 +1,7 @@
-<!-- eslint-disable vue/custom-event-name-casing -->
+
 <script setup>
-import { helpers } from "@/helpers"
-import SchoolService from "@/services/school.service"
-import useSchoolStore from "@/stores/school.store"
+import DeliveryUnitService from "@/services/delivery-units.service"
+import useDeliveryUnitStore from "@/stores/delivery-unit.store"
 import { alphaDashValidator, requiredValidator } from '@core/utils/validators'
 import { inject, nextTick, watch } from "vue"
 
@@ -22,10 +21,10 @@ const emit = defineEmits([
 ])
 
 // 👉 Services
-const schoolService = new SchoolService()
+const duService = new DeliveryUnitService()
 
 // 👉 Store
-const schoolStore = useSchoolStore()
+const duStore = useDeliveryUnitStore()
 
 // 👉 Visibility
 const visible = ref(false)
@@ -38,10 +37,9 @@ const formState = ref()
 
 // 👉 Form error
 const formError = ref({
-  SchoolName: [],
-  SchoolShortName: [],
-  SchoolNumber: [],
-  SchoolDescription: [],
+  DeliveryUnitName: [],
+  DeliveryUnitShortName: [],
+  DeliveryUnitDescription: [],
 })
 
 const isUpdateMode = computed(() => { 
@@ -65,10 +63,10 @@ watch(visible, visible => {
 
 // 👉 Watch school model
 watch(visible, async visible => {
-  if (!visible) return schoolStore.resetField()
+  if (!visible) return duStore.resetField()
 
   // Set
-  formState.value = schoolStore.getSchoolModel
+  formState.value = duStore.getDeliveryUnitModel
 }, { deep: true })
 
 async function onSubmit() {
@@ -77,12 +75,12 @@ async function onSubmit() {
 
 async function onCreate() {
   try {
-    const { status: code, data: response, message: error } = await schoolService.createSchool(formState.value)
+    const { status: code, data: response, message: error } = await duService.createDeliveryUnit(formState.value)
 
     if (code == 200)
     {
-      schoolStore.add(response)
-      toast.success("Successfully created school.")
+      duStore.add(response)
+      toast.success("Successfully created delivery unit.")
       
       visible.value = false
       reset()
@@ -98,12 +96,12 @@ async function onCreate() {
 
 async function onUpdate() {
   try {
-    const { status: code, data: response, message: error } = await schoolService.updateSchool(formState.value.id, formState.value)
+    const { status: code, data: response, message: error } = await duService.updateDeliveryUnit(formState.value.id, formState.value)
     
     if (code >= 200 && code <= 299)
     {
-      schoolStore.update(response)
-      toast.success("Successfully updated school.")
+      duStore.update(response)
+      toast.success("Successfully updated delivery unit.")
 
       visible.value = false
       reset()
@@ -120,10 +118,9 @@ async function onUpdate() {
 // 👉 Reset
 async function reset() {
   formError.value = ({
-    SchoolName: [],
-    SchoolShortName: [],
-    SchoolNumber: [],
-    SchoolDescription: [],
+    DeliveryUnitName: [],
+    DeliveryUnitShortName: [],
+    DeliveryUnitDescription: [],
   })
   await nextTick(() => { 
     refVForm.value.resetValidation()
@@ -139,11 +136,10 @@ async function setSelectedSchool() {
 // 
 </script>
 
-
 <template>
   <AppDialog v-model="visible">
     <template #title>
-      School Details
+      Delivery Unit Details
     </template>
     <template #content>
       <VForm ref="refVForm">
@@ -153,10 +149,10 @@ async function setSelectedSchool() {
             md="7"
           >
             <VTextField
-              v-model="formState.schoolName"
-              label="School Name"
+              v-model="formState.deliveryUnitName"
+              label="Delivery Unit Name"
               :rules="[requiredValidator]"
-              :error-messages="formError.SchoolName"
+              :error-messages="formError.DeliveryUnitName"
             />
           </VCol>
           <VCol
@@ -164,54 +160,26 @@ async function setSelectedSchool() {
             md="5"
           >
             <VTextField
-              v-model="formState.schoolShortName"
+              v-model="formState.deliveryUnitShortName"
               label="Short Name"
               :rules="[requiredValidator, alphaDashValidator]"
-              :error-messages="formError.SchoolShortName"
-            />
-          </VCol>
-          <VCol cols="12">
-            <VTextField
-              v-model="formState.schoolNumber"
-              label="School Number"
-              :rules="[requiredValidator]"
-              :error-messages="formError.SchoolNumber"
+              :error-messages="formError.DeliveryUnitShortName"
             />
           </VCol>
           <VCol cols="12">
             <VTextarea
-              v-model="formState.schoolDescription"
+              v-model="formState.deliveryUnitDescription"
               label="Description"
               :rules="[requiredValidator]"
               :rows="2"
               auto-grow
-              :error-messages="formError.SchoolDescription"
+              :error-messages="formError.DeliveryUnitDescription"
             />
           </VCol>
         </VRow>
       </VForm>
     </template>
     <template #actions>
-      <RouterLink
-        v-if="isUpdateMode"
-        :to="{
-          name: 'system-schools-id-campuses',
-          params: { id: helpers.security.encrypt(formState.id) },
-          props: true,
-        }"
-      >
-        <VBtn
-          variant="tonal"
-          :block="$vuetify.display.mdAndDown"
-          @click="setSelectedSchool"
-        >
-          <VIcon
-            start
-            icon="tabler-map-pins"
-          />
-          View Campuses
-        </VBtn>
-      </RouterLink>
       <VBtn
         variant="elevated"
         :color="(!isUpdateMode) ? 'primary' : 'secondary'"

@@ -99,25 +99,28 @@ async function handleClick() {
     />
 
     <VCardText>
-      <VAvatar
-        class="mb-2"
-        variant="tonal"
-        color="primary"
-      >
-        <span class="text-sm">{{ props.buildingNumber }}</span>
-      </VAvatar>
-      <div class="mb-3">
-        <h3 class="font-weight-thin text-uppercase">
-          {{ computedName }}
-        </h3>
-        <span class="d-block v-block text-xs text-disabled">{{ props.buildingShortName }}</span>
-        <VDivider />
+      <div class="d-flex flex-row flex-nowrap mb-3">
+        <VBtn
+          rounded="circle"
+          variant="tonal"
+          icon=""
+          size="small"
+        >
+          <span class="text-sm">#{{ props.buildingNumber }}</span>
+        </VBtn>
+        <div class="ms-2">
+          <h3 class="font-weight-thin text-uppercase">
+            {{ computedName }}
+          </h3>
+          <span class="d-block v-block text-xs text-disabled">{{ props.buildingShortName }}</span>
+        </div>
       </div>
+      <VDivider />
       <p class="font-weight-thin text-sm">
         {{ computedDesc }}
       </p>
     </VCardText>
-    <div class="building-card-action-btn demo-space-x">
+    <div class="building-card-action-btn demo-space-x flex-row flex-nowrap">
       <VBtn
         color="success"
         variant="elevated"

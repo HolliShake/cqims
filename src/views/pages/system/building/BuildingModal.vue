@@ -87,11 +87,11 @@ watch(visible, async visible => {
   } else {
     loaded.value = false
     try {
-      const response = await buildingService.getBuildingById(formState.value.id)
+      const { status: code, data: response, message: error } = await buildingService.getBuildingById(formState.value.id)
 
-      if (response.status === 200)
+      if (code == 200)
       {
-        formState.value = cloneDeep(response.data)
+        formState.value = cloneDeep(response)
         loaded.value = true
       }
       else
@@ -99,7 +99,7 @@ watch(visible, async visible => {
         toast.error(response.message)
       }
     } catch (err) {
-      toast.error(err.message)
+      toast.error(err.response?.data ?? err.message)
     }
   }
 }, { deep: true })

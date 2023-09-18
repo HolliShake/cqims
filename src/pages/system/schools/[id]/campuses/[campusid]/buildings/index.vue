@@ -96,7 +96,7 @@ const data = computed(() => {
 
 // 👉 Table paged data
 const pagedData = computed(() => {
-  if (options.value.itemsPerPage == -1) return props.items
+  if (options.value.itemsPerPage == -1) return data.value
 
   // Slice per page
   return data.value
@@ -158,26 +158,26 @@ onMounted(async () => {
 
   if (!computedPageData.value)
   {
-    router.push("/notfound")
+    return router.push("/notfound")
   }
 
   if (ID != computedPageData.value.id)
   {
-    router.push("/notfound")
+    return router.push("/notfound")
   }
 
   try {
-    const response = await buildingService.getAllBuildingsByCampusId(ID)
+    const { status: code, data: response, message: error } = await buildingService.getAllBuildingsByCampusId(ID)
 
-    if (response.status === 200)
+    if (code== 200)
     {
-      buildingStore.setBuilding(response.data)
+      buildingStore.setBuilding(response)
       loaded.value = true
     } else {
-      toast.error(response.message)
+      toast.error(error)
     }
   } catch (err) {
-    toast.error(err.message)
+    toast.error(err.response?.data ?? err.message)
   }
 })
 

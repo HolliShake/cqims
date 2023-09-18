@@ -1,7 +1,7 @@
 import CryptoJS from "crypto-js"
 
 const SALT = "S@lt"
-const KEY = "Dt0!usTp"
+const KEY = "Dt0!"
 
 export const helpers =  Object.freeze({
   security: {

@@ -87,9 +87,6 @@ async function onCreate() {
   try {
     const { status: code, data: response, message: error } = await campusService.createCampus(formState.value)
 
-    if (response.error)
-      return toast.error(response.errorMessage)
-
     if (code >= 200 && code <= 299)
     {
       campusStore.add(response)
@@ -111,9 +108,6 @@ async function onCreate() {
 async function onUpdate() {
   try {
     const { status: code, data: response, message: error } = await campusService.updateCampus(formState.value.id, formState.value)
-
-    if (response.error)
-      return toast.error(response.errorMessage)
 
     if (code >= 200 && code <= 299)
     {

@@ -1,10 +1,12 @@
+import { cloneDeep, merge } from "lodash"
 import { defineStore } from "pinia"
 
 const defaultData = () => ({
+  roomNumber: 1,
   roomName: "",
   roomShortName: "",
   roomDescription: "",
-  floorNumber: 0,
+  floorNumber: null,
   isLaboratory: true,
   buildingId: 0,
 })
@@ -12,7 +14,6 @@ const defaultData = () => ({
 const useRoomStore = defineStore("RoomStore", {
   state: () => ({
     rooms: [],
-    isUpdate: false,
     roomModel: {
       ...defaultData(),
     },
@@ -23,10 +24,7 @@ const useRoomStore = defineStore("RoomStore", {
       return this.rooms
     },
     getRoomModel() {
-      return this.roomModel
-    },
-    getIsUpdateMode() {
-      return this.isUpdate
+      return cloneDeep(this.roomModel)
     },
   },
 
@@ -43,11 +41,8 @@ const useRoomStore = defineStore("RoomStore", {
         room,
       )
     },
-    async removeCampus(room) {
-      remove(
-        this.rooms,
-        room,
-      )
+    async removeRoom(room) {
+      this.rooms = this.rooms.filter(r => r.id != room.id)
     },
     async setRoomModel(roomModel, updateMode) { 
       this.roomModel = roomModel

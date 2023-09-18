@@ -273,6 +273,30 @@ async function handleLink(campus) {
         <template #item.action="{ item }">
           <RouterLink
             :to="{
+              name: 'system-schools-id-campuses-campusid-delivery-units',
+              params: {
+                id: props.id,
+                campusid: helpers.security.encrypt(item.raw.id)
+              },
+              props: true
+            }"
+          >
+            <VBtn 
+              color="success"
+              icon="tabler-brand-superhuman" 
+              variant="text"
+              size="small"
+              @click.stop="handleLink(item.raw)"
+            >
+              <VIcon icon="tabler-brand-superhuman" />
+              <VTooltip activator="parent">
+                Delivery units
+              </VTooltip>
+            </VBtn>
+          </RouterLink>
+
+          <RouterLink
+            :to="{
               name: 'system-schools-id-campuses-campusid-buildings',
               params: {
                 id: props.id,
@@ -304,6 +328,9 @@ async function handleLink(campus) {
             color="error"
             @click.stop="onDelete(item.raw)"
           >
+            <VTooltip activator="parent">
+              Delete Building
+            </VTooltip>
             <VIcon
               icon="tabler-trash"
               color="error"

@@ -49,7 +49,14 @@ export default [
       {
         title: 'Instruments',
         to: { name: 'system-instruments' },
-        icon: { icon: 'tabler-building-arch', size: SUB_ICON_SIZE },
+        icon: { icon: 'tabler-stack', size: SUB_ICON_SIZE },
+        subject: 'Auth',
+        action: 'read',
+      },
+      {
+        title: 'Examination',
+        to: { name: 'system-examinations' },
+        icon: { icon: 'tabler-pencil', size: SUB_ICON_SIZE },
         subject: 'Auth',
         action: 'read',
       },
