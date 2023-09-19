@@ -240,7 +240,7 @@ onMounted(async () => {
         v-if="!loaded"
         cols="12"
       >
-        <VSkeletonLoader type="table" />
+        <VSkeletonLoader type="table-row-divider@4" />
       </VCol>
       <template v-else>
         <VCol

@@ -190,31 +190,31 @@ onMounted(async () => {
           </VCard>
           <VCard v-else>
             <VCardText>
-              <div class="d-flex flex-column flex-lg-row flex-nowrap gap-2">
-                <VTabs
-                  v-model="currentTab"
-                  :direction="$vuetify.display.lgAndUp? 'vertical': 'horizontal'"
-                  class="v-tabs-pill"
-                  selected-class="v-btn v-slide-group-item--active v-tab--selected v-theme--light text-success v-btn--density-default v-btn--size-default v-btn--variant-text v-tab"
-                >
-                  <VTab
-                    v-for="(du, index) in data"
-                    :key="`du-item-${index}`"
-                    :value="du.id"
+              <VRow>
+                <VCol cols="12">
+                  <VTabs
+                    v-model="currentTab"
+                    class="v-tabs-pill"
+                    selected-class="v-btn v-slide-group-item--active v-tab--selected v-theme--light text-success v-btn--density-default v-btn--size-default v-btn--variant-text v-tab"
                   >
-                    {{ du.deliveryUnitShortName }}
-                  </VTab>
-                </VTabs>
-
-                <!-- Window -->
-                <VCardText class="pa-0"> 
+                    <VTab
+                      v-for="(du, index) in data"
+                      :key="`du-item-${index}`"
+                      :value="du.id"
+                      class="text-truncate"
+                    >
+                      {{ du.deliveryUnitShortName }}
+                    </VTab>
+                  </VTabs>
+                </VCol>
+                <VCol cols="12">
                   <VWindow>
                     <VWindowItem>
                       <DeliveryUnitView />
                     </VWindowItem>
                   </VWindow>
-                </VCardText>
-              </div>
+                </VCol>
+              </VRow>
             </VCardText>
           </VCard>
         </template>

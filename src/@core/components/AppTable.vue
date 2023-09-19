@@ -111,7 +111,7 @@ async function onRowClick($event, { item: params }) {
     :items-length="pagedData.length"
     :loading="props.loading"
     sticky
-    class="custom-v-data-table bordered rounded-0 mb-4"
+    class="custom-v-data-table bordered rounded-0 m|b-4"
     @update:options="options = $event"
     @click:row="onRowClick"
   >
@@ -126,7 +126,7 @@ async function onRowClick($event, { item: params }) {
     </template>
     <!-- 👉 Bottom -->
     <template #bottom>
-      <div :class="`d-flex align-center justify-sm-space-between justify-center flex-wrap gap-3 ${props.shrink ? 'pa-0' : 'pa-5'} pt-3`">
+      <div :class="`d-flex align-center justify-sm-space-between justify-center flex-wrap gap-3 ${props.shrink ? 'pa-0' : 'px-5 py-2'} pt-3`">
         <p class="text-sm text-disabled mb-0">
           {{ paginationMeta(options, items.length) }}
         </p>

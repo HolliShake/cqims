@@ -73,7 +73,7 @@ async function onDelete() {
 </script>
 
 <template>
-  <VCard class="px-0 px-lg-3">
+  <VCard>
     <VRow>
       <VCol
         cols="12"
@@ -130,7 +130,7 @@ async function onDelete() {
       </VCol>
     </VRow>
 
-    <div class="py-4" />
+    <div class="py-3" />
 
     <DUAcademicProgramList />
   </VCard>

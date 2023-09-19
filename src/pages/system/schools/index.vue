@@ -91,17 +91,17 @@ async function onDelete(school) {
       if (!result) return
 
       try {
-        const response = await schoolService.deleteSchool(school.id)
+        const { status: code, data: response, message: error } = await schoolService.deleteSchool(school.id)
 
-        if (response.status >= 200 && response.status <= 299)
+        if (code >= 200 && code <= 299)
         {
           await onSuccessDelete(school)
         } else 
         {
-          toast.error(response.message)
+          toast.error(error)
         }
       } catch (err) {
-        toast.error(err.message)
+        toast.error(err.response?.data ?? err.message)
       } 
 
     })
