@@ -2,6 +2,7 @@
 import { helpers } from "@/helpers"
 import DeliveryUnitService from "@/services/delivery-units.service"
 import useDeliveryUnitStore from "@/stores/delivery-unit.store"
+import CampusInfo from "@/views/pages/system/campus/CampusInfo.vue"
 import DeliveryUnitModal from "@/views/pages/system/delivery-unit/DeliveryUnit-Modal.vue"
 import DeliveryUnitView from "@/views/pages/system/delivery-unit/DeliveryUnitView.vue"
 import { inject, provide } from "vue"
@@ -95,6 +96,14 @@ async function onCreate() {
 // 👉 Pass to child
 provide("selectedDeliveryUnit", currentTab)
 
+// 👉 Watch every search
+watch(search, () => {
+  if (data.value.length > 0)
+  {
+    currentTab.value = data.value[0].id
+  }
+}, { deep: true })
+
 onMounted(async () => { 
   const ID = helpers.security.decrypt(props.id)
 
@@ -109,9 +118,11 @@ onMounted(async () => {
   }
 
   duStore.setCampus(ID)
+  duStore.clear()
 
   try {
     const { status: code, data: response, message: error } = await duService.getDeliveryUnitsByCampusId(ID)
+    
     if (code == 200)
     {
       duStore.setDeliveryUnits(response)
@@ -121,7 +132,9 @@ onMounted(async () => {
       {
         currentTab.value = response[0].id
       }
-    } else {
+    } 
+    else 
+    {
       toast.error(error)
     }
   } catch (err) {
@@ -137,7 +150,7 @@ onMounted(async () => {
   <section>
     <PageHeader
       :title="computedPageData?.campusName ?? 'Campus'"
-      subtitle="Shows all available buildings of the school."
+      subtitle="Shows all delivery units of the following campus."
       :breadcrumb="breadCrumbs"
     />
     <VRow>
@@ -208,6 +221,9 @@ onMounted(async () => {
                   </VTabs>
                 </VCol>
                 <VCol cols="12">
+                  <VDivider />
+                </VCol>
+                <VCol cols="12">
                   <VWindow>
                     <VWindowItem>
                       <DeliveryUnitView />
@@ -224,6 +240,13 @@ onMounted(async () => {
     <!-- 👉 Building modal -->
     <Teleport to="#app">
       <DeliveryUnitModal v-model="isDeliveryUnitModalVisible" />
+    </Teleport>
+    <!-- 👉 Campus info -->
+    <Teleport to="#app">
+      <CampusInfo
+        context="delivery-unit"
+        :campus-id="computedPageData?.id ?? null"
+      />
     </Teleport>
   </section>
 </template>

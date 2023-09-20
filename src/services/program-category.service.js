@@ -1,7 +1,7 @@
 import axiosIns from "@/plugins/axios"
 
 
-class ProgramCategory
+class ProgramCategoryService
 {
   constructor()
   {
@@ -25,5 +25,5 @@ class ProgramCategory
   }
 }
 
-export default ProgramCategory
+export default ProgramCategoryService
 

@@ -4,6 +4,7 @@ import BuildingService from "@/services/building.service"
 import useBuildingStore from "@/stores/building.store"
 import BuildingCard from "@/views/pages/system/building/BuildingCard.vue"
 import BuildingModal from "@/views/pages/system/building/BuildingModal.vue"
+import CampusInfo from "@/views/pages/system/campus/CampusInfo.vue"
 import { inject } from "vue"
 import { useRouter } from "vue-router"
 
@@ -166,6 +167,8 @@ onMounted(async () => {
     return router.push("/notfound")
   }
 
+  buildingStore.clear()
+
   try {
     const { status: code, data: response, message: error } = await buildingService.getAllBuildingsByCampusId(ID)
 
@@ -189,7 +192,7 @@ onMounted(async () => {
   <section>
     <PageHeader
       :title="computedPageData?.campusName ?? 'Campus'"
-      subtitle="Shows all available buildings of the school."
+      subtitle="Shows all available buildings of the following campus."
       :breadcrumb="breadCrumbs"
     />
     <VRow>
@@ -297,6 +300,13 @@ onMounted(async () => {
         @success:create="onSuccessCreate"
         @success:update="onSuccessUpdate"
         @success:delete="onSuccessDelete"
+      />
+    </Teleport>
+    <!-- 👉 Campus info -->
+    <Teleport to="#app">
+      <CampusInfo
+        context="buildings"
+        :campus-id="computedPageData?.id ?? null"
       />
     </Teleport>
   </section>

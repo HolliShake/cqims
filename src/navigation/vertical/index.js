@@ -10,7 +10,7 @@ export default [
     action: 'read',
   },
   {
-    title: 'Finance',
+    title: 'Accounting',
     icon: { icon: 'tabler-cash' },
     children: [
       {

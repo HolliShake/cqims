@@ -32,6 +32,9 @@ const useRoomStore = defineStore("RoomStore", {
     async setRooms(rooms) {
       this.rooms = rooms
     },
+    async clear() {
+      this.rooms = []
+    },
     async appendRoom(room) {
       this.rooms.push(room)
     },

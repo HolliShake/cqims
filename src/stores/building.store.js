@@ -35,6 +35,9 @@ const useBuildingStore = defineStore("BuildingStore", {
     async setBuilding(buildings) { 
       this.buildings = buildings
     },
+    async clear() {
+      this.buildings = []
+    },
     async appendBuilding(building) { 
       this.buildings.push(building)
     },

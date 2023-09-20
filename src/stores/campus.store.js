@@ -43,6 +43,9 @@ const useCampusStore = defineStore("CampusStore", {
     async initialize(campusesArray) {
       this.campuses = campusesArray
     },
+    async clear() {
+      this.campuses = []
+    },
     async add(campus) {
       this.campuses.push(campus)
     },

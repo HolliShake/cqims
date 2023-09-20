@@ -9,13 +9,17 @@ const tableHeaders = ref([
   {
     title: "PROGRAM NAME",
     key: "academicProgramName",
+    value: v => h("div", { class: "d-block" }, [
+      h("span", { class: "d-block text-no-wrap font-weight-bold" }, v.academicProgramName),
+      h("span", { class: "d-block text-no-wrap text-sm text-disabled mt-n1" }, "@" + v.academicProgramShortName),
+    ]),
   },
   {
     title: "PROGRAM CATEGORY",
     key: "programCategory.programCategoryName",
   },
   {
-    title: "BOARD RES NO.",
+    title: "BORS No.",
     key: "boardResolutionNumber",
   },
   {
@@ -34,6 +38,7 @@ const tableHeaders = ref([
   },
   {
     title: "INFO",
+    key: "info",
   },
   {
     title: "ACTION",
@@ -74,7 +79,41 @@ const swal = inject("swal")
 // 👉 Data
 const data = computed(() => {
   return acadStore.getAcademicPrograms
-    .filter(ap => ap.academicProgramName.toLowerCase().startsWith(search.value.toLowerCase()))
+    .filter(ap => (ap.academicProgramName.toLowerCase().includes(search.value.toLowerCase())) || (ap.academicProgramShortName.toLowerCase().includes(search.value.toLowerCase())))
+})
+
+// 👉 Other information
+const otherInfo = computed(() => {
+  return [
+    {
+      label: "Identified By Ched",
+      key: "isChedIdentified",
+    },
+    { 
+      label: "RDC Priority",
+      key: "isRdcPriority",
+    },
+    {
+      label: "Requires Thesis",
+      key: "isThesisRequired",
+    },
+    {
+      label: "Accreditable",
+      key: "isAccreditable",
+    },
+    {
+      label: "Required Board Exam",
+      key: "isNonBoard",
+    },
+    {
+      label: "On Campus",
+      key: "isOnCampus",
+    },
+    {
+      label: "Distant Learning",
+      key: "isDistantLearning",
+    },
+  ]
 })
 
 // 👉 On create event
@@ -99,7 +138,8 @@ async function onDelete(academicProgram) {
         {
           toast.success("Academic Program successfully deleted.")
           acadStore.delete(academicProgram)
-        } else 
+        } 
+        else 
         {
           toast.error(error)
         }
@@ -114,6 +154,11 @@ async function onView(academicProgramRaw) {
   isModalVisible.value = true
   isUpdateMode.value = true
   acadStore.setField(academicProgramRaw.raw)
+}
+
+// 👉 Save academic program
+function saveAcademicProgram(academicProgram) {
+  localStorage.setItem("selectedAcademicProgram", JSON.stringify(academicProgram))
 }
 
 watch(selectedDeliveryUnit, async value => {
@@ -131,8 +176,6 @@ watch(selectedDeliveryUnit, async value => {
     {
       acadStore.setAcademicPrograms(response)
       loaded.value = true
-
-      console.log(response)
     }
     else 
     {
@@ -154,6 +197,7 @@ watch(selectedDeliveryUnit, async value => {
         <VCol
           cols="8"
           md="4"
+          lg="3"
         >
           <VTextField
             v-model="search"
@@ -198,22 +242,83 @@ watch(selectedDeliveryUnit, async value => {
         :headers="tableHeaders"
         :items="data"
         :items-per-page="itemsPerPage"
+        :loading="!loaded"
         @click:row="onView"
       >
-        <template #item.action="{ item }">
+        <template #item.info="{ item }">
           <VBtn
             variant="text"
-            icon=""
-            color="error"
-            size="small"
-            @click.stop="onDelete(item.raw)"
+            density="compact"
+            @click.stop=""
           >
-            <VTooltip activator="parent">
-              Delete academic program
-            </VTooltip>
+            <span class="text-sm text-no-wrap">MORE</span>
 
-            <VIcon icon="tabler-trash" />
+            <VMenu
+              activator="parent"
+              open-on-hover
+              location="top"
+            >
+              <VCard>
+                <VCardText class="pa-2">
+                  <small
+                    v-for="info in otherInfo"
+                    :key="info.key"
+                    class="d-block text-sm text-disabled text-no-wrap"
+                  >
+                    <VIcon
+                      start
+                      :icon="item.raw[info.key] ? 'mdi-check-circle': 'mdi-close-circle'"
+                      size="12"
+                      :color="item.raw[info.key] ? 'success':'error'"
+                    />
+
+                    {{ info.label }}
+                  </small>
+                </VCardText>
+              </VCard>
+            </VMenu>
           </VBtn>
+        </template>
+
+        <template #item.action="{ item }">
+          <span class="text-no-wrap">
+            <RouterLink
+              :to="{ 
+                name: 'system-schools-id-campuses-campusid-delivery-units-deliveryunitid', 
+                params: {
+                  deliveryunitid: helpers.security.encrypt(selectedDeliveryUnit)
+                },
+              }"
+            >
+              <VBtn
+                variant="text"
+                icon=""
+                color="success"
+                size="small"
+                @click.stop="saveAcademicProgram(item.raw)"
+              >
+                <VTooltip activator="parent">
+                  View curriculums
+                </VTooltip>
+
+                <VIcon icon="tabler-article" />
+              </VBtn>
+            </RouterLink>
+          
+            <VBtn
+              variant="text"
+              icon=""
+              color="error"
+              size="small"
+              @click.stop="onDelete(item.raw)"
+            >
+              <VTooltip activator="parent">
+                Delete academic program
+              </VTooltip>
+
+              <VIcon icon="tabler-trash" />
+            </VBtn>
+          </span>
         </template>
       </AppTable>
     </VCard>  

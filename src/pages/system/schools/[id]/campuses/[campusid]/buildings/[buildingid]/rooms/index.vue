@@ -151,13 +151,14 @@ onMounted(async () => {
   {
     return router.push("/notfound")
   }
+
+  roomStore.clear()
   
   try {
     const { status: code, data: response,  message: error } = await roomService.getAllRoomsByBuildingId(ID)
 
     if (code == 200)
     {
-      console.log(response)
       roomStore.setRooms(response)
       loaded.value = true
     } else 
@@ -236,7 +237,14 @@ onMounted(async () => {
               :key="`room-${index}`"
             >
               <VExpansionPanelTitle>
-                <h3>FLOOR #{{ rooms[0].floorNumber }}</h3>  
+                <h3>
+                  <VBadge
+                    dot
+                    offset-y="-10"
+                    color="warning"
+                  /> 
+                  FLOOR #{{ rooms[0].floorNumber }}
+                </h3>  
               </VExpansionPanelTitle>
               <VExpansionPanelText>
                 <VCard

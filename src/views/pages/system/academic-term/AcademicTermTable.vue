@@ -1,17 +1,33 @@
 <script setup>
-import ProgramCategoryService from "@/services/program-category.service"
-import useProgramCategoryStore from "@/stores/program-category.store"
-import ProgramCategoryModal from "./ProgramCategoryModal.vue"
+import AcademicTermService from "@/services/academic-term.service"
+import useAcademicTermStore from "@/stores/academic-term.store"
+import AcademicTermnModal from "./AcademicTermModal.vue"
 
 // 👉 Table header
 const tableHeaders = ref([
   {
-    title: "PROGRAM CATEGORY",
-    key: "programCategoryName",
+    title: "ACADEMIC TERM",
+    key: "academicTermName",
   },
   {
-    title: "DESCRIPTION",
-    key: "programCategoryDescription",
+    title: "G1 LABEL",
+    key: "grade1Label",
+  },
+  {
+    title: "G2 LABEL",
+    key: "grade2Label",
+  },
+  {
+    title: "G3 LABEL",
+    key: "grade3Label",
+  },
+  {
+    title: "G4 LABEL",
+    key: "grade4Label",
+  },
+  {
+    title: "ORDER",
+    key: "semOrder",
   },
   {
     title: "ACTION",
@@ -21,11 +37,11 @@ const tableHeaders = ref([
   },
 ])
 
-// 👉 Program category service
-const programCategoryService = new ProgramCategoryService()
+// 👉 Academic term service
+const academicTermService = new AcademicTermService()
 
-// 👉 Program category store
-const programCategoryStore = useProgramCategoryStore()
+// 👉 Academic term store
+const academicTermStore = useAcademicTermStore()
 
 // 👉 Default items per page
 const itemsPerPage = ref(10)
@@ -49,8 +65,8 @@ const toast = inject("toast")
 const swal = inject("swal")
 
 const data = computed(() => {
-  return programCategoryStore.getProgramCategories
-    .filter(e => e.programCategoryName.toLowerCase().startsWith(search.value.toLowerCase()))
+  return academicTermStore.getAcademicTerms
+    .filter(a => a.academicTermName.toLowerCase().startsWith(search.value.toLowerCase()))
 })
 
 // 👉 On create
@@ -60,21 +76,21 @@ async function onCreate() {
 }
 
 // 👉 On delete
-async function onDelete(programCategory) {
+async function onDelete(academicTerm) {
   swal.value.fire({
-    question: `Delete program category "${ programCategory.programCategoryName }"?`,
+    question: `Delete academic term "${ academicTerm.academicTermName }"?`,
     dangerMode: true,
   })
     .then(async result => {
       if (!result) return
 
       try {
-        const { status: code, data: response, message: error } = await programCategoryService.deleteProgramCategory(programCategory.id)
+        const { status: code, data: response, message: error } = await academicTermService.deleteAcademicTerm(academicTerm.id)
 
         if (code >= 200 && code <= 299)
         {
-          toast.success("Program Category successfully deleted.")
-          programCategoryStore.delete(programCategory)
+          toast.success("Academic term successfully deleted.")
+          academicTermStore.delete(academicTerm)
         } else 
         {
           toast.error(error)
@@ -87,20 +103,20 @@ async function onDelete(programCategory) {
 }
 
 // 👉 On view
-async function onView(programCategoryRaw) {
+async function onView(academicTermRaw) {
   isModalVisible.value = true
   isUpdateMode.value = true
-  programCategoryStore.setField(programCategoryRaw.raw)
+  academicTermStore.setField(academicTermRaw.raw)
 }
 
 // 👉 Fetch data on mount
 onMounted(async () => {
   try {
-    const { status: code, data: response, messge: error } = await programCategoryService.getAllProgramCategories()
+    const { status: code, data: response, messge: error } = await academicTermService.getAllAcademicTerm()
 
     if (code == 200)
     {
-      programCategoryStore.setProgramCategories(response)
+      academicTermStore.setAcademicTerms(response)
       loaded.value = true
     }
     else 
@@ -177,15 +193,15 @@ onMounted(async () => {
           @click.stop="onDelete(item.raw)"
         >
           <VIcon icon="tabler-trash" />
-          <VTooltip>Delete Examination</VTooltip>
+          <VTooltip>Delete Academic Term</VTooltip>
         </VBtn>
       </template>
     </AppTable>
   </VCard>
 
-  <!-- program category modal create/udpate -->
+  <!-- Academic term modal create/udpate -->
   <Teleport to="#app">
-    <ProgramCategoryModal
+    <AcademicTermnModal
       v-model="isModalVisible"
       :is-update-mode="isUpdateMode"
     />  

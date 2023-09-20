@@ -114,6 +114,8 @@ async function onSuccessDelete(school) {
 }
 
 onMounted(async () => {
+  schoolStore.clear()
+
   try {
     const { status: code, data: response, message: error } = await schoolService.getAllSchool()
   

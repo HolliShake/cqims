@@ -96,37 +96,42 @@ async function onDelete() {
       <VCol
         cols="12"
         md="auto"
-        class="ms-auto"
+        class="ms-auto px-6"
       >
         <VBtn
-          variant="tonal"
-          color="info"
-          block
-          @click="onEdit"
+          variant="elevated"
+          density="compact"
+          icon=""
+          color="white"
         >
-          <VIcon
-            start
-            icon="tabler-pencil"
-          />
-          EDIT
-        </VBtn>  
-      </VCol>
-      <VCol
-        cols="12"
-        md="auto"
-      >
-        <VBtn
-          variant="tonal"
-          color="error"
-          block
-          @click="onDelete"
-        >
-          <VIcon
-            start
-            icon="tabler-trash"
-          />
-          DELETE
-        </VBtn>  
+          <VTooltip activator="parent">
+            Delivery Unit Option
+          </VTooltip>
+
+          <VIcon icon="tabler-dots-vertical" />
+          <VMenu
+            activator="parent"
+            location="start"
+            offset="10"
+          >
+            <VList>
+              <!-- Edit -->
+              <VListItem @click="onEdit">
+                <template #prepend>
+                  <VIcon icon="tabler-pencil" />
+                </template>
+                <VListItemTitle>Edit</VListItemTitle>
+              </VListItem>
+              <!-- Delete -->
+              <VListItem @click="onDelete">
+                <template #prepend>
+                  <VIcon icon="tabler-trash" />
+                </template>
+                <VListItemTitle>Delete</VListItemTitle>
+              </VListItem>
+            </VList>
+          </VMenu>
+        </VBtn>
       </VCol>
     </VRow>
 

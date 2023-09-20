@@ -101,10 +101,11 @@ async function handleClick() {
     <VCardText>
       <div class="d-flex flex-row flex-nowrap mb-3">
         <VBtn
-          rounded="circle"
+          rounded="sm"
           variant="tonal"
           icon=""
           size="small"
+          color="warning"
         >
           <span class="text-sm">#{{ props.buildingNumber }}</span>
         </VBtn>

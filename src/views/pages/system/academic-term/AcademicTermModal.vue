@@ -1,8 +1,8 @@
 <!-- eslint-disable vue/custom-event-name-casing -->
 <script setup>
-import ExaminationService from "@/services/examination.service"
-import useExaminationStore from "@/stores/examination.store"
-import { requiredValidator } from '@core/utils/validators'
+import AcademicTermService from "@/services/academic-term.service"
+import useAcademicTermStore from "@/stores/academic-term.store"
+import { integerValidator, requiredValidator } from '@core/utils/validators'
 import { inject, nextTick, watch } from "vue"
 
 const props = defineProps({
@@ -20,11 +20,11 @@ const emit = defineEmits([
   'update:modelValue',
 ])
 
-// 👉 Services
-const examService = new ExaminationService()
+// 👉 Academic term service
+const academicTermService = new AcademicTermService()
 
-// 👉 Store
-const examStore = useExaminationStore()
+// 👉 Academic term store
+const academicTermStore = useAcademicTermStore()
 
 // 👉 Visibility
 const visible = ref(false)
@@ -37,8 +37,12 @@ const formState = ref()
 
 // 👉 Form error
 const formError = ref({
-  ExaminationName: [],
-  ExamDescription: [],
+  AcademicTermName: [],
+  SemOrder: [],
+  Grade1Label: [],
+  Grade2Label: [],
+  Grade3Label: [],
+  Grade4Label: [],
 })
 
 // 👉 Computed is update flag
@@ -64,10 +68,10 @@ watch(visible, visible => {
 
 // 👉 Watch campus model
 watch(visible, async visible => {
-  if (!visible) return examStore.resetField()
+  if (!visible) return academicTermStore.resetField()
 
   // Set
-  formState.value = examStore.getExaminationModel
+  formState.value = academicTermStore.getAcademicTermModel
 }, { deep: true })
 
 // 👉 On submit
@@ -78,12 +82,12 @@ async function onSubmit() {
 // 👉 On create campus
 async function onCreate() {
   try {
-    const { status: code, data: response, message: error } = await examService.createExamination(formState.value)
+    const { status: code, data: response, message: error } = await academicTermService.createAcademicTerm(formState.value)
 
     if (code >= 200 && code <= 299)
     {
-      examStore.add(response)
-      toast.success("Examination successfully created.")
+      academicTermStore.add(response)
+      toast.success("Academic term successfully created.")
 
       visible.value = false
       reset()
@@ -100,12 +104,12 @@ async function onCreate() {
 // 👉 On update campus
 async function onUpdate() {
   try {
-    const { status: code, data: response, message: error } = await examService.updateExamination(formState.value.id, formState.value)
+    const { status: code, data: response, message: error } = await academicTermService.updateAcademicTerm(formState.value.id, formState.value)
 
     if (code >= 200 && code <= 299)
     {
-      examStore.update(response)
-      toast.success("Examination successfully updated.")
+      academicTermStore.update(response)
+      toast.success("Academic term successfully updated.")
 
       visible.value = false
       reset()
@@ -133,32 +137,71 @@ async function reset() {
 // 
 </script>
 
-
 <template>
   <AppDialog v-model="visible">
     <template #title>
-      Examination Details
+      Academic Term Details
     </template>
     <template #content>
       <VForm ref="refVForm">
         <VRow>
-          <VCol cols="12">
+          <VCol
+            cols="12"
+            md="8"
+          >
             <VTextField
-              v-model="formState.examinationName"
-              label="Examination Name"
+              v-model="formState.academicTermName"
+              label="Academic Term Name"
               :rules="[requiredValidator]"
-              :error-messages="formError.ExaminationName"
+              :error-messages="formError.AcademicTermName"
+              :loading="!loaded"
+            />
+          </VCol>
+          <VCol
+            cols="12"
+            md="4"
+          >
+            <VTextField
+              v-model="formState.semOrder"
+              label="Sem Order"
+              :rules="[requiredValidator, integerValidator]"
+              :error-messages="formError.SemOrder"
               :loading="!loaded"
             />
           </VCol>
           <VCol cols="12">
-            <VTextarea
-              v-model="formState.examinationDescription"
-              label="Description"
-              :rows="2"
-              auto-grow
+            <VTextField
+              v-model="formState.grade1Label"
+              label="Grade 1 Label"
               :rules="[requiredValidator]"
-              :error-messages="formError.ExaminationDescription"
+              :error-messages="formError.Grade1Label"
+              :loading="!loaded"
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
+              v-model="formState.grade2Label"
+              label="Grade 2 Label"
+              :rules="[requiredValidator]"
+              :error-messages="formError.Grade2Label"
+              :loading="!loaded"
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
+              v-model="formState.grade3Label"
+              label="Grade 3 Label"
+              :rules="[requiredValidator]"
+              :error-messages="formError.Grade3Label"
+              :loading="!loaded"
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
+              v-model="formState.grade4Label"
+              label="Grade 4 Label"
+              :rules="[requiredValidator]"
+              :error-messages="formError.Grade4Label"
               :loading="!loaded"
             />
           </VCol>

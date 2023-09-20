@@ -39,6 +39,10 @@ const useDeliveryUnitStore = defineStore("DeliveryUnitStore", {
       this.deliveryUnits = deliveryUnits
     },
 
+    async clear() {
+      this.deliveryUnits = []
+    },
+
     async findAsync(deliveryUnitId) {
       return this.deliveryUnits.find(du => du.id == deliveryUnitId)
     },

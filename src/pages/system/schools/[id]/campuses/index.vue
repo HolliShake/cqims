@@ -164,6 +164,7 @@ onMounted(async () => {
   }
 
   campusStore.setSchool(ID)
+  campusStore.clear()
 
   try {
     const { status: code, data: response, message: error } = await campusService.getSchoolCampuses(ID)

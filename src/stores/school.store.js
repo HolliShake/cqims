@@ -28,6 +28,9 @@ const useSchoolStore = defineStore("SchoolStore", {
     async initialize(schoolsArray) {
       this.schools = schoolsArray
     },
+    async clear() {
+      this.schools = []
+    },
     async add(school) {
       this.schools.push(school)
     },

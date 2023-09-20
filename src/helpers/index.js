@@ -29,7 +29,14 @@ const formater = ({
     const date = new Date(dateString)
     const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
-    return `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
+    let dd = date.getDate()
+
+    if (dd < 10)
+    {
+      dd = `0${dd}`
+    }
+
+    return `${MONTHS[date.getMonth()]} ${dd}, ${date.getFullYear()}`
   },
 })
 

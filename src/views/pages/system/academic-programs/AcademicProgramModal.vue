@@ -1,6 +1,8 @@
 <!-- eslint-disable vue/custom-event-name-casing -->
 <script setup>
 import AcademicProgramService from "@/services/academic-program.service"
+import ExaminationService from "@/services/examination.service"
+import ProgramCategoryService from "@/services/program-category.service"
 import useAcademicProgramStore from "@/stores/academic-program.store"
 import { integerValidator, requiredValidator } from '@core/utils/validators'
 import { inject, nextTick, watch } from "vue"
@@ -22,6 +24,8 @@ const emit = defineEmits([
 
 // 👉 Services
 const acadService = new AcademicProgramService()
+const examService = new ExaminationService()
+const programCategoryService = new ProgramCategoryService()
 
 // 👉 Store
 const acadStore = useAcademicProgramStore()
@@ -37,8 +41,13 @@ const formState = ref({})
 
 // 👉 Form error
 const formError = ref({
-  ExaminationName: [],
-  ExamDescription: [],
+  AcademicProgramName: [],
+  AcademicProgramShortName: [],
+  BoardResolutionNumber: [],
+  YearOffered: [],
+  DateApproved: [],
+  YearFirstGraduate: [],
+  Notes: [],
 })
 
 // 👉 Computed is update flag
@@ -51,6 +60,34 @@ const loaded = ref(!isUpdateMode.value)
 
 // 👉 Toast
 const toast = inject('toast')
+
+// 👉 Examination items
+const examItems = computedAsync(async () => {
+  return await examService.getAllExamination()
+    .then(res => {
+      if (res.data.constructor.name != "Array") return []
+
+      return res.data.map(exam => ({
+        title: exam.examinationName,
+        value: exam.id,
+      }))
+    })
+    .catch(() => [])
+})
+
+// 👉 Program Category items
+const programCategoryItems = computedAsync(async () => {
+  return await programCategoryService.getAllProgramCategories()
+    .then(res => {
+      if (res.data.constructor.name != "Array") return []
+
+      return res.data.map(programCategory => ({
+        title: programCategory.programCategoryName,
+        value: programCategory.id,
+      }))
+    })
+    .catch(() => [])
+})
 
 // 👉 Watch props
 watch(props, props => {
@@ -100,8 +137,6 @@ async function onCreate() {
 
 // 👉 On update campus
 async function onUpdate() {
-
-  console.log("asdasd")
   try {
     const { status: code, data: response, message: error } = await acadService.updateAcademicProgram(formState.value.id, formState.value)
 
@@ -118,15 +153,19 @@ async function onUpdate() {
       toast.error(error)
     }
   } catch (err) {
-    console.log(err)
     formError.value = err.response?.data?.errors ?? formError.value
   }
 }
 
 async function reset() {
   formError.value = ({
-    ExaminationName: [],
-    ExamDescription: [],
+    AcademicProgramName: [],
+    AcademicProgramShortName: [],
+    BoardResolutionNumber: [],
+    YearOffered: [],
+    DateApproved: [],
+    YearFirstGraduate: [],
+    Notes: [],
   })
   await nextTick(() => {
     refVForm.value.reset()
@@ -134,9 +173,23 @@ async function reset() {
   })
 }
 
+// 👉 Watch exam, program category and set
+watch(formState, async value => {
+  if (!value) return
+
+  if ((await examItems.value).length > 0)
+  {
+    formState.value.examinationId = (!formState.value.examinationId) ? (await examItems.value)[0].value : formState.value.examinationId
+  }
+
+  if ((await programCategoryItems.value).length > 0)
+  {
+    formState.value.programCategoryId = (!formState.value.programCategoryId) ? (await programCategoryItems.value)[0].value : formState.value.programCategoryId
+  }
+}, { deep: true })
+
 // 
 </script>
-
 
 <template>
   <AppDialog v-model="visible">
@@ -177,6 +230,26 @@ async function reset() {
               :rules="[requiredValidator, integerValidator]"
               :error-messages="formError.BoardResolutionNumber"
               :loading="!loaded"
+            />
+          </VCol>
+          <VCol
+            cols="12"
+            md="6"
+          >
+            <VSelect
+              v-model="formState.examinationId"
+              label="Examination"
+              :items="examItems"
+            />
+          </VCol>
+          <VCol
+            cols="12"
+            md="6"
+          >
+            <VSelect
+              v-model="formState.programCategoryId"
+              label="Program Category"
+              :items="programCategoryItems"
             />
           </VCol>
           <VCol cols="12">
@@ -231,6 +304,48 @@ async function reset() {
             class="py-0"
           >
             <LabeledDivider title="Additional Information" />
+          </VCol>
+          <VCol cols="auto">
+            <VSwitch
+              v-model="formState.isChedIdentified"
+              label="Is Ched Identified"
+            />
+          </VCol>
+          <VCol cols="auto">
+            <VSwitch
+              v-model="formState.isRdcPriority"
+              label="Is RDC Priority"
+            />
+          </VCol>
+          <VCol cols="auto">
+            <VSwitch
+              v-model="formState.isOnCampus"
+              label="On Campus"
+            />
+          </VCol>
+          <VCol cols="auto">
+            <VSwitch
+              v-model="formState.isThesisRequired"
+              label="Is Thesis Required"
+            />
+          </VCol>
+          <VCol cols="auto">
+            <VSwitch
+              v-model="formState.isAccreditable"
+              label="Is Accreditable"
+            />
+          </VCol>
+          <VCol cols="auto">
+            <VSwitch
+              v-model="formState.isNonBoard"
+              label="Requires Board Exam"
+            />
+          </VCol>
+          <VCol cols="auto">
+            <VSwitch
+              v-model="formState.isDistantLearning"
+              label="Distant Learning"
+            />
           </VCol>
         </VRow>
       </VForm>

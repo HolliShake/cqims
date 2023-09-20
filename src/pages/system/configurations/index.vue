@@ -1,4 +1,5 @@
 <script setup>
+import AcademicTermTable from "@/views/pages/system/academic-term/AcademicTermTable.vue"
 import ExaminationTable from "@/views/pages/system/examination/ExaminationTable.vue"
 import ProgramCategoryTable from "@/views/pages/system/program-category/ProgramCategoryTable.vue"
 
@@ -27,17 +28,20 @@ const breadCrumbs = ref([
     />
 
     <VCard>
-      <VList type="accordion">
-        <!-- --------------------------------- Instrument ---------------------------------- -->
+      <VList
+        class="configuration-v-list"
+        type="accordion"
+      >
+        <!-- --------------------------------- Academic programs ---------------------------------- -->
         <VListGroup>
           <template #activator="{ props }">
             <VListItem
               v-bind="props"
-              prepend-icon="mdi-microscope"
+              prepend-icon="mdi-script"
             >
               <!-- title -->
               <template #title>
-                <span class="config-list-title font-weight-bold text-dark text-black text-uppercase">Instruments</span>
+                <span class="config-list-title font-weight-bold text-dark text-black text-uppercase">Academic Program Categories</span>
               </template>
               <!-- activator -->
               <template #append="{ isActive }">
@@ -49,11 +53,34 @@ const breadCrumbs = ref([
             </VListItem>
           </template>
           <!-- content -->
-          <VListItem
-            class="py-0"
-            style="padding-inline-end: 0 !important; padding-inline-start: 0 !important;"
-          >
-            <!-- -->
+          <VListItem style="padding-block-end: 0 !important; padding-inline-end: 0 !important; padding-inline-start: 0 !important;">
+            <ProgramCategoryTable />
+          </VListItem>
+        </VListGroup>
+        <!-- --------------------------------- Academic Term ---------------------------------- -->
+        <VDivider />
+        <VListGroup>
+          <template #activator="{ props }">
+            <VListItem
+              v-bind="props"
+              prepend-icon="mdi-calendar"
+            >
+              <!-- title -->
+              <template #title>
+                <span class="config-list-title font-weight-bold text-dark text-black text-uppercase">Academic Term</span>
+              </template>
+              <!-- activator -->
+              <template #append="{ isActive }">
+                <VIcon
+                  color="success"
+                  :icon="isActive? 'tabler-arrow-badge-up-filled' : 'tabler-arrow-badge-down-filled'"
+                />
+              </template>
+            </VListItem>
+          </template>
+          <!-- content -->
+          <VListItem style="padding-block-end: 0 !important; padding-inline-end: 0 !important; padding-inline-start: 0 !important;">
+            <AcademicTermTable />
           </VListItem>
         </VListGroup>
         <!-- --------------------------------- Examinations ---------------------------------- -->
@@ -78,34 +105,8 @@ const breadCrumbs = ref([
             </VListItem>
           </template>
           <!-- content -->
-          <VListItem style="padding-inline-end: 0 !important; padding-inline-start: 0 !important;">
+          <VListItem style="padding-block-end: 0 !important; padding-inline-end: 0 !important; padding-inline-start: 0 !important;">
             <ExaminationTable />
-          </VListItem>
-        </VListGroup>
-        <!-- --------------------------------- Academic programs ---------------------------------- -->
-        <VDivider />
-        <VListGroup>
-          <template #activator="{ props }">
-            <VListItem
-              v-bind="props"
-              prepend-icon="mdi-script"
-            >
-              <!-- title -->
-              <template #title>
-                <span class="config-list-title font-weight-bold text-dark text-black text-uppercase">Academic Program Categories</span>
-              </template>
-              <!-- activator -->
-              <template #append="{ isActive }">
-                <VIcon
-                  color="success"
-                  :icon="isActive? 'tabler-arrow-badge-up-filled' : 'tabler-arrow-badge-down-filled'"
-                />
-              </template>
-            </VListItem>
-          </template>
-          <!-- content -->
-          <VListItem style="padding-inline-end: 0 !important; padding-inline-start: 0 !important;">
-            <ProgramCategoryTable />
           </VListItem>
         </VListGroup>
       </VList>
@@ -116,5 +117,9 @@ const breadCrumbs = ref([
 <style lang="scss">
 .config-list-title {
   user-select: none;
+}
+
+.configuration-v-list > .v-list-group:not(:last-child) .v-list-group__items > .v-list-item > .v-list-item__content > .v-card {
+  border-block-end: none !important;
 }
 </style>
