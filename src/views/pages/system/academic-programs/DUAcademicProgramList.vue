@@ -39,6 +39,7 @@ const tableHeaders = ref([
   {
     title: "INFO",
     key: "info",
+    align: "center",
   },
   {
     title: "ACTION",

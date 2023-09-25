@@ -36,6 +36,26 @@ export default [
     ],
   },
   {
+    title: 'Courses',
+    icon: { icon: 'tabler-school' },
+    children: [
+      {
+        title: 'Course',
+        to: { name: 'courses-courses' },
+        icon: { icon: 'mdi-list-box-outline', size: SUB_ICON_SIZE },
+        subject: 'Auth',
+        action: 'read',
+      },
+      {
+        title: 'Course Requisite',
+        to: { name: 'courses-course-requisite' },
+        icon: { icon: 'mdi-list-status', size: SUB_ICON_SIZE },
+        subject: 'Auth',
+        action: 'read',
+      },
+    ],
+  },
+  {
     title: 'System',
     icon: { icon: 'tabler-adjustments-cog' },
     children: [
