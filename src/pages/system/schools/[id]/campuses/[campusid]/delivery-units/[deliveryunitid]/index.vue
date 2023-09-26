@@ -390,7 +390,7 @@ onMounted(async () => {
                         <VDivider />  
                       </VCol>
                       <VCol cols="12">
-                        <div class="demo-space-x text-wrap gap-x-1">
+                        <div class="d-flex flex-row flex-wrap text-wrap gap-1">
                           <VChip
                             class="text-nowrap m-0"
                             size="small"
@@ -434,6 +434,15 @@ onMounted(async () => {
                             color="info"
                           >
                             <span class="text-xs text-disabled">{{ slotProps.item.raw.major }}</span>
+                          </VChip>  
+
+                          <VChip
+                            class="text-nowrap m-0"
+                            size="small"
+                            rounded="sm"
+                            color="#ffff00"
+                          >
+                            <span class="text-xs text-disabled">passing: {{ slotProps.item.raw.minScore }}</span>
                           </VChip>  
                         </div>
                         <div class="d-block mt-2">

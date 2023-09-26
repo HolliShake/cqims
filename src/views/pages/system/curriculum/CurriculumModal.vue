@@ -128,7 +128,7 @@ async function onUpdate() {
     if (code >= 200 && code <= 299)
     {
       curriculumStore.update(response)
-      toast.success("Examination successfully updated.")
+      toast.success("Curriculum successfully updated.")
 
       visible.value = false
       reset()
@@ -148,6 +148,7 @@ async function reset() {
     ProgramType: [],
     Major: [],
     Minor: [],
+    MinScore: [],
     TotalSemesters: [],
     YearFirstImplemented: [],
   })
@@ -216,6 +217,15 @@ async function reset() {
               label="Minor"
               :rules="[requiredValidator]"
               :error-messages="formError.Minor"
+              :loading="!loaded"
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
+              v-model="formState.minScore"
+              label="Min score"
+              :rules="[requiredValidator, integerValidator]"
+              :error-messages="formError.MinScore"
               :loading="!loaded"
             />
           </VCol>

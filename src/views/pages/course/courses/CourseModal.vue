@@ -1,9 +1,9 @@
 <!-- eslint-disable vue/custom-event-name-casing -->
 <script setup>
-import AcademicTermService from "@/services/academic-term.service"
-import CurriculumService from "@/services/curriculum.service"
-import useCurriculumStore from "@/stores/curriculum.store"
-import { betweenValidator, integerValidator, requiredValidator } from '@core/utils/validators'
+import CourseService from "@/services/course.service"
+import SubDisciplineService from "@/services/sub-discipline.service"
+import useCourseStore from "@/stores/course.store"
+import { integerValidator, requiredValidator } from '@core/utils/validators'
 import { inject, nextTick, watch } from "vue"
 
 const props = defineProps({
@@ -22,10 +22,10 @@ const emit = defineEmits([
 ])
 
 // 👉 Services
-const curriculumService = new CurriculumService()
+const courseService = new CourseService()
 
 // 👉 Store
-const curriculumStore = useCurriculumStore()
+const courseStore = useCourseStore()
 
 // 👉 Visibility
 const visible = ref(false)
@@ -38,12 +38,16 @@ const formState = ref()
 
 // 👉 Form error
 const formError = ref({
-  CurriculumName: [],
-  ProgramType: [],
-  Major: [],
-  Minor: [],
-  TotalSemesters: [],
-  YearFirstImplemented: [],
+  CourseName: [],
+  CourseCode: [],
+  CourseDescription: [],
+  UnitsLab: [],
+  UnitsLec: [],
+  CreditsUnit: [],
+  CreditHoursLab: [],
+  CreditHoursLec: [],
+  CreditHours: [],
+  SubDisciplineId: [],
 })
 
 // 👉 Computed is update flag
@@ -58,16 +62,16 @@ const loaded = ref(!isUpdateMode.value)
 const toast = inject('toast')
 
 // 👉 Academic term items
-const academicTermItems = computedAsync(async () => {
+const subDisciplineItems = computedAsync(async () => {
   try {
-    const { status: code, data: response } = await (new AcademicTermService()).getAllAcademicTerm()
+    const { status: code, data: response } = await (new SubDisciplineService()).getAllSubDiscipline()
 
     if (code == 200)
     {
       return response
-        .map(at => ({
-          title: at.academicTermName,
-          value: at.id,
+        .map(sd => ({
+          title: sd.subDisciplineCode,
+          value: sd.id,
         }))
     }
   } catch(err) {}
@@ -87,10 +91,10 @@ watch(visible, visible => {
 
 // 👉 Watch campus model
 watch(visible, async visible => {
-  if (!visible) return curriculumStore.resetField()
+  if (!visible) return courseStore.resetField()
 
   // Set
-  formState.value = curriculumStore.getCurriculumModel
+  formState.value = courseStore.getCourseModel
 }, { deep: true })
 
 // 👉 On submit
@@ -101,12 +105,12 @@ async function onSubmit() {
 // 👉 On create campus
 async function onCreate() {
   try {
-    const { status: code, data: response, message: error } = await curriculumService.createCurriculum(formState.value)
+    const { status: code, data: response, message: error } = await courseService.createCourse(formState.value)
 
     if (code >= 200 && code <= 299)
     {
-      curriculumStore.add(response)
-      toast.success("Curriculum successfully created.")
+      courseStore.add(response)
+      toast.success("Course successfully created.")
 
       visible.value = false
       reset()
@@ -123,12 +127,12 @@ async function onCreate() {
 // 👉 On update campus
 async function onUpdate() {
   try {
-    const { status: code, data: response, message: error } = await curriculumService.updateCurriculum(formState.value.id, formState.value)
+    const { status: code, data: response, message: error } = await courseService.updateCourse(formState.value.id, formState.value)
 
     if (code >= 200 && code <= 299)
     {
-      curriculumStore.update(response)
-      toast.success("Examination successfully updated.")
+      courseStore.update(response)
+      toast.success("Course successfully updated.")
 
       visible.value = false
       reset()
@@ -144,12 +148,16 @@ async function onUpdate() {
 
 async function reset() {
   formError.value = ({
-    CurriculumName: [],
-    ProgramType: [],
-    Major: [],
-    Minor: [],
-    TotalSemesters: [],
-    YearFirstImplemented: [],
+    CourseName: [],
+    CourseCode: [],
+    CourseDescription: [],
+    UnitsLab: [],
+    UnitsLec: [],
+    CreditsUnit: [],
+    CreditHoursLab: [],
+    CreditHoursLec: [],
+    CreditHours: [],
+    SubDisciplineId: [],
   })
   await nextTick(() => {
     refVForm.value.reset()
@@ -175,57 +183,38 @@ async function reset() {
           >
             <LabeledDivider title="Basic Information" />
           </VCol>
-          <VCol cols="12">
+          <VCol
+            cols="12"
+            md="7"
+          >
             <VTextField
-              v-model="formState.curriculumName"
-              label="Curriculum Name"
+              v-model="formState.courseName"
+              label="Course Name"
               :rules="[requiredValidator]"
-              :error-messages="formError.CurriculumName"
-              readonly
-              :loading="!loaded"
-              hint="readonly field"
-            />
-          </VCol>
-          <VCol cols="12">
-            <VTextField
-              v-model="formState.programType"
-              label="Program Type"
-              :rules="[requiredValidator]"
-              :error-messages="formError.ProgramType"
+              :error-messages="formError.CourseName"
               :loading="!loaded"
             />
           </VCol>
           <VCol
             cols="12"
-            md="6"
+            md="5"
           >
             <VTextField
-              v-model="formState.major"
-              label="Major"
+              v-model="formState.courseCode"
+              label="Course Code"
               :rules="[requiredValidator]"
-              :error-messages="formError.Major"
-              :loading="!loaded"
-            />
-          </VCol>
-          <VCol
-            cols="12"
-            md="6"
-          >
-            <VTextField
-              v-model="formState.minor"
-              label="Minor"
-              :rules="[requiredValidator]"
-              :error-messages="formError.Minor"
+              :error-messages="formError.CourseCode"
               :loading="!loaded"
             />
           </VCol>
           <VCol cols="12">
-            <VSelect
-              v-model="formState.academicTermId"
-              label="Select academic term"
-              :items="academicTermItems"
-              :rules="[requiredValidator, integerValidator]"
-              :error-messages="formError.AcademicTermId"
+            <VTextarea
+              v-model="formState.courseDescription"
+              label="Description"
+              :rows="2"
+              auto-grow
+              :rules="[requiredValidator]"
+              :error-messages="formError.CourseDescription"
               :loading="!loaded"
             />
           </VCol>
@@ -235,32 +224,86 @@ async function reset() {
           >
             <LabeledDivider title="Other details" />
           </VCol>
+          <VCol cols="12">
+            <VSelect
+              v-model="formState.subDisciplineId"
+              label="Select sub discipline"
+              :items="subDisciplineItems"
+              :rules="[requiredValidator, integerValidator]"
+              :error-messages="formError.SubDisciplineId"
+              :loading="!loaded"
+            />
+          </VCol>
           <VCol
             cols="12"
-            md="6"
+            md="5"
           >
-            <AppTextField
-              v-model="formState.totalSemesters"
-              label="Total semesters"
-              :rules="[requiredValidator, integerValidator, betweenValidator(formState.totalSemesters, 1, 4)]"
-              :error-messages="formError.TotalSemesters"
+            <VTextField
+              v-model="formState.unitsLab"
+              label="Unit (Lab)"
+              :rules="[requiredValidator, integerValidator]"
+              :error-messages="formError.UnitsLab"
+            />
+          </VCol>
+          <VCol
+            cols="12"
+            md="7"
+          >
+            <VTextField
+              v-model="formState.creditHoursLab"
+              label="Credit hours (Lab)"
+              :rules="[requiredValidator, integerValidator]"
+              :error-messages="formError.CreditHoursLab"
+            />
+          </VCol>
+          <VCol
+            cols="12"
+            md="5"
+          >
+            <VTextField
+              v-model="formState.unitsLec"
+              label="Unit (Lec)"
+              :rules="[requiredValidator, integerValidator]"
+              :error-messages="formError.UnitsLec"
+            />
+          </VCol>
+          <VCol
+            cols="12"
+            md="7"
+          >
+            <VTextField
+              v-model="formState.creditHoursLec"
+              label="Credit hours (Lec)"
+              :rules="[requiredValidator, integerValidator]"
+              :error-messages="formError.CreditHoursLec"
             />
           </VCol>
           <VCol
             cols="12"
             md="6"
           >
-            <AppDateTimePicker
-              v-model="formState.yearFirstImplemented"
-              label="Year First Implemented"
-              :rules="[requiredValidator]"
-              :error-messages="formError.YearFirstImplemented"
+            <VTextField
+              v-model="formState.creditHours"
+              label="Credit hours"
+              :rules="[requiredValidator, integerValidator]"
+              :error-messages="formError.CreditHours"
+            />
+          </VCol>
+          <VCol
+            cols="12"
+            md="6"
+          >
+            <VTextField
+              v-model="formState.creditsUnit"
+              label="Credits unit"
+              :rules="[requiredValidator, integerValidator]"
+              :error-messages="formError.CreditsUnit"
             />
           </VCol>
           <VCol cols="auto">
             <VCheckbox
-              v-model="formState.isDefault"
-              label="Is Default"
+              v-model="formState.isWithLab"
+              label="With Laboratory"
             />
           </VCol>
           <VCol cols="auto">

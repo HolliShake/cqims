@@ -23,19 +23,6 @@ export default [
     ],
   },
   {
-    title: 'Registrar',
-    icon: { icon: 'tabler-user' },
-    children: [
-      {
-        title: 'Fees',
-        to: { name: 'finance-fees' },
-        icon: { icon: 'tabler-receipt-2', size: SUB_ICON_SIZE },
-        subject: 'Auth',
-        action: 'read',
-      },
-    ],
-  },
-  {
     title: 'Courses',
     icon: { icon: 'tabler-school' },
     children: [
@@ -47,8 +34,8 @@ export default [
         action: 'read',
       },
       {
-        title: 'Course Requisite',
-        to: { name: 'courses-course-requisite' },
+        title: 'Course Catalogue',
+        to: { name: 'courses-course-catalogue' },
         icon: { icon: 'mdi-list-status', size: SUB_ICON_SIZE },
         subject: 'Auth',
         action: 'read',

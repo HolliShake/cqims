@@ -1,5 +1,14 @@
 <script setup>
+import CourseService from "@/services/course.service"
+import useCourseStore from "@/stores/course.store"
 import CourseModal from "@/views/pages/course/courses/CourseModal.vue"
+import { computed, inject } from "vue"
+
+// 👉 Service
+const courseService = new CourseService()
+
+// 👉 Store
+const courseStore = useCourseStore()
 
 const tableHeaders = ref([
   {
@@ -8,12 +17,13 @@ const tableHeaders = ref([
   },
   {
     title: "CODE",
-    key: "courseShortName",
+    key: "courseCode",
   },
   {
     title: "ACTION",
     key: "action",
     align: "center",
+    width: 100,
   },
 ])
 
@@ -23,6 +33,17 @@ const isCourseModalVisible = ref(false)
 // 👉 Is update mode
 const isUpdateMode = ref(false)
 
+// 👉 Loaded flag
+const loaded = ref(false)
+
+// 👉 Toast
+const toast = inject("toast")
+
+// 👉 Actual data
+const data = computed(() => {
+  return courseStore.getCourses
+})
+
 // 👉 On create event
 async function onCreate()
 {
@@ -30,12 +51,33 @@ async function onCreate()
   isUpdateMode.value = false
 }
 
-// 👉 On create event
-async function onUpdate(courseRaw)
+// 👉 On view event
+async function onView(courseRaw)
 {
   isCourseModalVisible.value = true
   isUpdateMode.value = true
+  courseStore.setField(courseRaw.raw)
 }
+
+onMounted(async () => {
+  try {
+    const { status: code, data: response } = await courseService.getAllCourses()
+
+    if (code == 200)
+    {
+      courseStore.initialize(response)
+      loaded.value = true
+
+      console.log(response)
+    }
+    else
+    {
+      toast.error(error)
+    }
+  } catch (err) {
+    toast.error(err.response?.data ?? err.message)
+  }
+})
 </script>
 
 <template>
@@ -72,7 +114,27 @@ async function onUpdate(courseRaw)
           </VCol>
         </VRow>
       </VCardText>
-      <AppTable :headers="tableHeaders" />
+      <AppTable
+        :headers="tableHeaders"
+        :items="data"
+        :loading="!loaded"
+        @click:row="onView"
+      >
+        <template #item.action="{ item }">
+          <VBtn
+            icon=""
+            variant="text"
+            color="error"
+            size="small"
+            @click.stop=""
+          >
+            <VTooltip activator="parent">
+              Delete course
+            </VTooltip>
+            <VIcon icon="tabler-trash" />
+          </VBtn>  
+        </template>
+      </AppTable>
     </VCard>
 
     <!-- To app -->

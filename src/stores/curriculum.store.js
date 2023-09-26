@@ -6,6 +6,7 @@ const defaultModel = () => ({
   programType: "",
   major: "",
   minor: "",
+  minScore: 80,
   totalSemesters: 2,
   yearFirstImplemented: new Date(Date.now()),
   isActive: false,
