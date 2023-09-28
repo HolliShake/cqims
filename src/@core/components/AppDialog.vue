@@ -8,6 +8,11 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
+function handleClose()
+{
+  emit('update:modelValue', false)
+}
+
 // 
 </script>
 
@@ -18,7 +23,11 @@ const emit = defineEmits(['update:modelValue'])
     class="v-dialog-sm"
     persistent
   >
-    <DialogCloseBtn @click="emit('update:modelValue', false)" />
+    <DialogCloseBtn @click="handleClose" />
+  
+    <template #activator>
+      <slot name="activator" />  
+    </template>
 
     <VCard>
       <VCardTitle class="text-center">

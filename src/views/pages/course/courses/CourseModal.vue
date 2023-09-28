@@ -98,12 +98,14 @@ watch(visible, async visible => {
 }, { deep: true })
 
 // 👉 On submit
-async function onSubmit() {
+async function onSubmit() 
+{
   if (await refVForm.value.validate()) (!isUpdateMode.value) ? await onCreate() : await onUpdate()
 }
 
 // 👉 On create campus
-async function onCreate() {
+async function onCreate() 
+{
   try {
     const { status: code, data: response, message: error } = await courseService.createCourse(formState.value)
 
@@ -125,7 +127,8 @@ async function onCreate() {
 }
 
 // 👉 On update campus
-async function onUpdate() {
+async function onUpdate() 
+{
   try {
     const { status: code, data: response, message: error } = await courseService.updateCourse(formState.value.id, formState.value)
 
