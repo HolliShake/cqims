@@ -47,6 +47,11 @@ const useCourseRequisiteStore = (function() {
         parent.courseRequisites.push(courseRequisite)
       },
 
+      async addAll(courseRequisites) 
+      {
+        courseRequisites.forEach(courseRequisite => this.add(courseRequisite))
+      },
+
       async update(courseRequisite) 
       {
         const parent = courseStore.courses.find(c => c.id == courseRequisite.parentCourseId)

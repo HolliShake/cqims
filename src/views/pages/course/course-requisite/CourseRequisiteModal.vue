@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/custom-event-name-casing -->
 <script setup>
-import CourseService from "@/services/course.service"
+import CourseRequisiteService from "@/services/course-requisite.service"
 import useCourseRequisiteStore from "@/stores/course-requisite.store"
 import useCourseStore from "@/stores/course.store"
 import { inject, watch } from "vue"
@@ -10,17 +10,12 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  isUpdateMode: {
-    type: Boolean,
-    default: false,
-  },
 })
 
 const emit = defineEmits([
   'update:modelValue',
   "activate",
 ])
-
 
 const tableHeaders = ref([
   {
@@ -32,9 +27,12 @@ const tableHeaders = ref([
   {
     title: "CODE",
     key: "courseCode",
+  },
+  {
+    title: "SUBDISCIPLINE",
+    key: "subDiscipline.subDisciplineCode",
     width: "100%",
   },
-  
   {
     title: "MORE",
     key: "more",
@@ -43,7 +41,7 @@ const tableHeaders = ref([
 ])
 
 // 👉 Services
-const courseService = new CourseService()
+const courseRequisiteService = new CourseRequisiteService()
 
 // 👉 Store
 const courseStore = useCourseStore()
@@ -52,16 +50,14 @@ const courseRequisiteStore = useCourseRequisiteStore()
 // 👉 Visibility
 const visible = ref(false)
 
-// 👉 Computed is update flag
-const isUpdateMode = computed(() => { 
-  return props.isUpdateMode
-})
-
 // 👉 Toast
 const toast = inject('toast')
 
 // 👉 Search
 const search = ref("")
+
+// 👉 Selected courses
+const selectedCourses = ref([])
 
 // 👉 Actual data
 const data = computed(() => {
@@ -90,41 +86,28 @@ async function onActivate()
 // 👉 On submit
 async function onSubmit() 
 {
-  if (await refVForm.value.validate()) (!isUpdateMode.value) ? await onCreate() : await onUpdate()
+  return await onCreate() 
 }
 
 // 👉 On create campus
 async function onCreate() 
 {
+
+  const payload = selectedCourses.value.map(courseId => ({
+    requisiteType: 0, // Default is Co
+    parentCourseId: courseRequisiteStore.getCourse,
+    requisiteId: courseId,
+  }))
+
+  console.log(payload)
+
   try {
-    const { status: code, data: response, message: error } = await courseService.createCourse(formState.value)
+    const { status: code, data: response, message: error } = await courseRequisiteService.createAllCourseRequisite(payload)
 
     if (code >= 200 && code <= 299)
     {
-      courseStore.add(response)
-      toast.success("Course successfully created.")
-
-      visible.value = false
-    }
-    else
-    {
-      toast.error(error)
-    }
-  } catch (err) {
-    formError.value = err.response?.data?.errors ?? formError.value
-  }
-}
-
-// 👉 On update campus
-async function onUpdate() 
-{
-  try {
-    const { status: code, data: response, message: error } = await courseService.updateCourse(formState.value.id, formState.value)
-
-    if (code >= 200 && code <= 299)
-    {
-      courseStore.update(response)
-      toast.success("Course successfully updated.")
+      courseRequisiteStore.addAll(response)
+      toast.success("Course requisite successfully created.")
 
       visible.value = false
     }
@@ -161,7 +144,7 @@ async function onUpdate()
     </template>
 
     <template #title>
-      Course Details
+      Select Course Requisite(s)
     </template>
     <template #content>
       <VCard
@@ -179,6 +162,7 @@ async function onUpdate()
           </VRow>
         </VCardText>
         <AppTable
+          v-model="selectedCourses"
           :headers="tableHeaders"
           :items="data"
           expand-on-click
@@ -188,6 +172,7 @@ async function onUpdate()
             <VMenu
               location="start"
               open-on-hover
+              :max-width="260"
             >
               <template #activator="{ props }">
                 <VBtn
@@ -200,7 +185,44 @@ async function onUpdate()
               </template>
               <VCard>
                 <VCardText class="pa-3">
-                  asd
+                  <VRow no-gutters>
+                    <VCol cols="12">
+                      <span class="d-flex flex-nowrap w-100 text-xs"><span>UNITS (LAB):</span> <VSpacer /> <span>{{ item.raw.unitsLab }}</span></span>
+                    </VCol>
+                    <VCol cols="12">
+                      <span class="d-flex flex-nowrap w-100 text-xs"><span>UNITS (LEC):</span> <VSpacer /> <span>{{ item.raw.unitsLec }}</span></span>
+                    </VCol>
+                    <VCol cols="12">
+                      <span class="d-flex flex-nowrap w-100 text-xs"><span>CREDITED HOURS (LAB):</span> <VSpacer /> <span>{{ item.raw.creditHoursLab }}</span></span>
+                    </VCol>
+                    <VCol cols="12">
+                      <span class="d-flex flex-nowrap w-100 text-xs"><span>CREDITED HOURS (LEC):</span> <VSpacer /> <span>{{ item.raw.creditHoursLec }}</span></span>
+                    </VCol>
+                    <VCol cols="auto">
+                      <span class="d-flex flex-nowrap w-100 text-xs"><span>CREDITED HOURS:</span> <VSpacer /> <span>{{ item.raw.creditHours }}</span></span>
+                    </VCol>
+                    <VCol cols="auto">
+                      <span class="d-flex flex-nowrap w-100 text-xs"><span>CREDITED UNITS:</span> <VSpacer /> <span>{{ item.raw.creditsUnit }}</span></span>
+                    </VCol>
+                    <VCol cols="12">
+                      <VIcon
+                        start
+                        :icon="(item.raw.isActive)? 'mdi-check-circle' : 'mdi-close-circle'"
+                        size="12"
+                        :color="(item.raw.isActive) ? 'warning' : 'error'"
+                      />
+                      <span class="text-xs">is active</span>
+                    </VCol>
+                    <VCol cols="12">
+                      <VIcon
+                        start
+                        :icon="(item.raw.isWithLab)? 'mdi-check-circle' : 'mdi-close-circle'"
+                        size="12"
+                        :color="(item.raw.isWithLab) ? 'warning' : 'error'"
+                      />
+                      <span class="text-xs">with laboratory</span>
+                    </VCol>
+                  </VRow>
                 </VCardText>
               </VCard>
             </VMenu>
@@ -211,14 +233,14 @@ async function onUpdate()
     <template #actions>
       <VBtn
         variant="elevated"
-        :color="(!isUpdateMode) ? 'primary' : 'secondary'"
+        color="primary"
         @click="onSubmit"
       >
         <VIcon
           start
-          :icon="(!isUpdateMode)? 'tabler-location' : 'tabler-edit'"
+          icon="tabler-location"
         />
-        {{ (!isUpdateMode) ? 'SUBMIT' : 'UPDATE' }}
+        SUBMIT
       </VBtn>
     </template>
   </AppDialog>

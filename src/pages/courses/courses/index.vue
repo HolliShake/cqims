@@ -1,4 +1,5 @@
 <script setup>
+import CourseRequisiteService from "@/services/course-requisite.service"
 import CourseService from "@/services/course.service"
 import useCourseRequisiteStore from "@/stores/course-requisite.store"
 import useCourseStore from "@/stores/course.store"
@@ -8,6 +9,7 @@ import { computed, inject } from "vue"
 
 // 👉 Service
 const courseService = new CourseService()
+const courseRequisiteService = new CourseRequisiteService()
 
 // 👉 Store
 const courseStore = useCourseStore()
@@ -28,38 +30,15 @@ const tableHeaders = ref([
     title: "CODE",
     key: "courseCode",
   },
-
-  // {
-  //   title: "SUBDISCIPLINE",
-  //   key: "subDiscipline.subDisciplineCode",
-  // },
-  
   {
-    title: "UNIT (LAB)",
-    key: "unitsLab",
+    title: "SUBDISCIPLINE",
+    key: "subDiscipline.subDisciplineCode",
+    width: "100%",
+  },
+  {
+    title: "MORE",
+    key: "more",
     align: "center",
-  },
-  {
-    title: "UNIT (LEC)",
-    key: "unitsLec",
-    align: "center",
-  },
-  {
-    title: "CREDIT HOURS (LAB)",
-    key: "creditHoursLab",
-  },
-  {
-    title: "CREDIT HOURS (LEC)",
-    key: "creditHoursLec",
-  },
-  {
-    title: "CREDIT HOURS",
-    key: "creditHours",
-  },
-  {
-    
-    title: "CREDIT UNITS",
-    key: "creditsUnit",
   },
   {
     title: "ACTION",
@@ -162,17 +141,18 @@ async function onDeleteRequisite(courseRequisite)
       if (!result) return
 
       try {
-        const { status: code, message: error } = await courseService.deleteCourse(course.id)
+        const { status: code, message: error } = await courseRequisiteService.deleteCourseRequisite(courseRequisite.id)
 
         if (code >= 200 && code <= 299)
         {
-          courseRequisite.delete(courseRequisite)
-          toast.success("Successfully delete course requisite.")
+          courseRequisiteStore.delete(courseRequisite)
+          toast.success("Successfully deleted course requisite.")
         } else 
         {
           toast.error(error)
         }
       } catch (err) {
+        console.log(err)
         toast.error(err.response?.data ?? err.message)
       } 
     })
@@ -187,7 +167,7 @@ onMounted(async () => {
       courseStore.initialize(response)
       loaded.value = true
 
-      console.log(response)
+      console.log(">>", response)
     }
     else
     {
@@ -240,6 +220,67 @@ onMounted(async () => {
         :loading="!loaded"
         expand-on-click
       >
+        <template #item.more="{ item }">
+          <VMenu
+            location="start"
+            open-on-hover
+            :max-width="260"
+          >
+            <template #activator="{ props }">
+              <VBtn
+                variant="text"
+                density="compact"
+                v-bind="props"
+                @click.stop="$event => null"
+              >
+                <span class="text-sm">INFO</span>
+              </VBtn>
+            </template>
+            <VCard>
+              <VCardText class="pa-3">
+                <VRow no-gutters>
+                  <VCol cols="12">
+                    <span class="d-flex flex-nowrap w-100 text-xs"><span>UNITS (LAB):</span> <VSpacer /> <span>{{ item.raw.unitsLab }}</span></span>
+                  </VCol>
+                  <VCol cols="12">
+                    <span class="d-flex flex-nowrap w-100 text-xs"><span>UNITS (LEC):</span> <VSpacer /> <span>{{ item.raw.unitsLec }}</span></span>
+                  </VCol>
+                  <VCol cols="12">
+                    <span class="d-flex flex-nowrap w-100 text-xs"><span>CREDITED HOURS (LAB):</span> <VSpacer /> <span>{{ item.raw.creditHoursLab }}</span></span>
+                  </VCol>
+                  <VCol cols="12">
+                    <span class="d-flex flex-nowrap w-100 text-xs"><span>CREDITED HOURS (LEC):</span> <VSpacer /> <span>{{ item.raw.creditHoursLec }}</span></span>
+                  </VCol>
+                  <VCol cols="auto">
+                    <span class="d-flex flex-nowrap w-100 text-xs"><span>CREDITED HOURS:</span> <VSpacer /> <span>{{ item.raw.creditHours }}</span></span>
+                  </VCol>
+                  <VCol cols="auto">
+                    <span class="d-flex flex-nowrap w-100 text-xs"><span>CREDITED UNITS:</span> <VSpacer /> <span>{{ item.raw.creditsUnit }}</span></span>
+                  </VCol>
+                  <VCol cols="12">
+                    <VIcon
+                      start
+                      :icon="(item.raw.isActive)? 'mdi-check-circle' : 'mdi-close-circle'"
+                      size="12"
+                      :color="(item.raw.isActive) ? 'warning' : 'error'"
+                    />
+                    <span class="text-xs">is active</span>
+                  </VCol>
+                  <VCol cols="12">
+                    <VIcon
+                      start
+                      :icon="(item.raw.isWithLab)? 'mdi-check-circle' : 'mdi-close-circle'"
+                      size="12"
+                      :color="(item.raw.isWithLab) ? 'warning' : 'error'"
+                    />
+                    <span class="text-xs">with laboratory</span>
+                  </VCol>
+                </VRow>
+              </VCardText>
+            </VCard>
+          </VMenu>
+        </template>
+
         <!-- Expanded Row Data -->
         <template #expanded-row="slotProps">
           <tr class="v-data-table__tr">
@@ -260,7 +301,7 @@ onMounted(async () => {
                         <span class="font-weight-bold">#COURSE REQUISITE{{ (courseRequisiteStore.mapRequisites(slotProps.item.raw.courseRequisites).length > 1) ? "(S)" : "" }}</span>  
                       </VChip>
 
-                      <CourseRequisiteModal @activate="courseRequisiteStore.setCourse(slotProps.item.raw.id)" />
+                      <CourseRequisiteModal @activate="() => courseRequisiteStore.setCourse(slotProps.item.raw.id)" />
                     </div>
                   </VCol>
                   <VCol cols="12">
