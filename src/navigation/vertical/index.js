@@ -43,6 +43,34 @@ export default [
     ],
   },
   {
+    title: 'Students',
+    icon: { icon: 'tabler-users' },
+    children: [
+      {
+        title: 'Students',
+        to: { name: 'students-students' },
+        icon: { icon: 'tabler-user', size: SUB_ICON_SIZE },
+        subject: 'Auth',
+        action: 'read',
+      },
+
+      // {
+      //   title: 'Admissions',
+      //   to: { name: 'students-admissions' },
+      //   icon: { icon: 'tabler-user-plus', size: SUB_ICON_SIZE },
+      //   subject: 'Auth',
+      //   action: 'read',
+      // },
+      // {
+      //   title: 'Enrollments',
+      //   to: { name: 'students-enrollments' },
+      //   icon: { icon: 'tabler-user-check', size: SUB_ICON_SIZE },
+      //   subject: 'Auth',
+      //   action: 'read',
+      // },
+    ],
+  },
+  {
     title: 'System',
     icon: { icon: 'tabler-adjustments-cog' },
     children: [

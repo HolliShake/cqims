@@ -1,4 +1,5 @@
 <script setup>
+import AuthContext from '@/context/AuthContext.vue'
 import ScrollToTop from '@core/components/ScrollToTop.vue'
 import { useThemeConfig } from '@core/composable/useThemeConfig'
 import { hexToRgb } from '@layouts/utils'
@@ -31,14 +32,16 @@ provide("swal", swal)
 </script>
 
 <template>
-  <VLocaleProvider :rtl="isAppRtl">
-    <!-- Loading screen -->
-    <Loader />
-    <!-- ℹ️ This is required to set the background color of active nav link based on currently active global theme's primary -->
-    <VApp :style="`--v-global-theme-primary: ${hexToRgb(global.current.value.colors.primary)}`">
-      <QuestionDialog ref="swal" />
-      <RouterView />
-      <ScrollToTop />
-    </VApp>
-  </VLocaleProvider>
+  <AuthContext>
+    <VLocaleProvider :rtl="isAppRtl">
+      <!-- Loading screen -->
+      <Loader />
+      <!-- ℹ️ This is required to set the background color of active nav link based on currently active global theme's primary -->
+      <VApp :style="`--v-global-theme-primary: ${hexToRgb(global.current.value.colors.primary)}`">
+        <QuestionDialog ref="swal" />
+        <RouterView />
+        <ScrollToTop />
+      </VApp>
+    </VLocaleProvider>  
+  </AuthContext>
 </template>

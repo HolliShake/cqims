@@ -65,7 +65,7 @@ watch(visible, visible => {
 
 // 👉 Watch school model
 watch(visible, async visible => {
-  if (!visible) return schoolStore.resetField()
+  if (!visible) await schoolStore.resetField()
 
   // Set
   formState.value = schoolStore.getSchoolModel

@@ -8,18 +8,18 @@ const security = ({
     try {
       return CryptoJS.AES.encrypt(SALT + `${text}`, KEY).toString()
     } catch (err) {
-      return ""
+      return "0"
     }
   },
   decrypt: function (text) { 
     text = text.toString()
     try {
       const bytes =
-          CryptoJS.AES.decrypt(text, KEY)
+        CryptoJS.AES.decrypt(text, KEY)
     
       return bytes.toString(CryptoJS.enc.Utf8).replaceAll(SALT, "")
     } catch (err) {
-      return ""
+      return "0"
     }
   },
 })
