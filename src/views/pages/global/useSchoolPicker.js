@@ -8,12 +8,12 @@ const useSchoolPicker = defineStore("SchoolPicker", {
     {
       if (localStorage.getItem("selectedSchool"))
       {
-        selectedSchool = parseInt(localStorage.getItem("selectedSchool"))
+        selectedSchool = parseInt(localStorage.getItem("schoolPicker->selectedSchool"))
       }
 
       if (localStorage.getItem("selectedCampus"))
       {
-        selectedCampus = parseInt(localStorage.getItem("selectedCampus"))
+        selectedCampus = parseInt(localStorage.getItem("schoolPicker->selectedCampus"))
       }
     } catch (error) {
       console.log(error)
@@ -37,12 +37,12 @@ const useSchoolPicker = defineStore("SchoolPicker", {
   actions: {
     async setSelectedSchool(schoolId)
     {
-      localStorage.setItem("selectedSchool", schoolId)
+      localStorage.setItem("schoolPicker->selectedSchool", schoolId)
       this.selectedSchool = schoolId
     },
     async setSelectedCampus(campusId)
     {
-      localStorage.setItem("selectedCampus", campusId)
+      localStorage.setItem("schoolPicker->selectedCampus", campusId)
       this.selectedCampus = campusId
     },
   },

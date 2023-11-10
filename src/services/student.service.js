@@ -10,6 +10,10 @@ class StudentService {
     return await axiosIns.get(this.endPoint + "/All/Campus" + `/${campusId}`)
   }
 
+  async getStudentById(studentId) {
+    return await axiosIns.get(this.endPoint + `/${studentId}`)
+  }
+
   async createStudent(payload) {
     return await axiosIns.post(this.endPoint + "/Create", payload)
   }

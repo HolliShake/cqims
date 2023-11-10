@@ -112,10 +112,10 @@ onMounted(async () => {
     return router.push("/notfound")
   }
 
-  if (ID != computedPageData.value.id)
-  {
-    return router.push("/notfound")
-  }
+  // if (ID != computedPageData.value.id)
+  // {
+  //   return router.push("/notfound")
+  // }
 
   duStore.setCampus(ID)
   duStore.clear()

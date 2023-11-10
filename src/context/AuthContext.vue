@@ -11,7 +11,6 @@ provide("authContext", authContext)
 
 onMounted(async () => {
   // Fetch auth data
-  console.log("Hello World!")
 })
 
 // 

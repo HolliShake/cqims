@@ -7,7 +7,7 @@ const props = defineProps({
     required: true,
   },
   alt: {
-    type: String,
+    type: [String, null],
     required: true,
   },
 })

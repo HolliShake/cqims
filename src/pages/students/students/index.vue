@@ -1,4 +1,5 @@
 <script setup>
+import { helpers } from "@/helpers"
 import StudentService from "@/services/student.service"
 import useStudentStore from "@/stores/student.store"
 import AppAvatar from "@/views/pages/global/AppAvatar.vue"
@@ -34,7 +35,7 @@ const tableHeaders = ref([
   {
     title: "ACTION",
     key: "action",
-    width: "100px",
+    width: "130px",
     align: "center",
   },
 ])
@@ -181,67 +182,67 @@ watch(useSchoolPicker, async picker => {
                   CREATE STUDENT
                 </VBtn>
               </VCol>
-              <VCol cols="12">
-                <div>
-                  <VRow>
-                    <VCol
-                      cols="12"
-                      sm="4"
-                      md="3"
-                    >
-                      <VTextField />
-                    </VCol>
-                    <VCol
-                      cols="12"
-                      sm="8"
-                      md="9"
-                    >
-                      <VCard
-                        flat
-                        border
-                        style="border-top: none;"
-                      >
-                        <AppTable
-                          :headers="tableHeaders"
-                          :items="data"
-                          :loading="!loaded"
-                          :model-value="[1006]"
-                          @click:row="onUpdate"
-                        >
-                          <!--  -->
-                          <template #item.user.fullName="{ item }">
-                            <div class="d-flex flex-row flex-nowrap align-center gap-3">
-                              <AppAvatar
-                                :src="item.raw.profilePath"
-                                :alt="item.raw.user.fullName"
-                              />
-                              <div>
-                                <span class="d-block font-weight-bold">{{ item.raw.user.fullName }}</span>
-                                <span class="d-block mt-n1 text-xs">{{ item.raw.studentId }}</span>
-                              </div>
-                            </div>
-                          </template>
-
-                          <!--  -->
-                          <template #item.action="{ item }">
-                            <VBtn
-                              icon=""
-                              color="error"
-                              size="small"
-                              variant="text"
-                              @click.stop="onDeleteStudent(item.raw)"
-                            >
-                              <VIcon icon="tabler-trash" />
-                            </VBtn>
-                          </template>
-                        </AppTable>
-                      </VCard>
-                    </VCol>
-                  </VRow>
-                </div>
-              </VCol>
             </VRow>
           </VCardText>
+          <AppTable
+            :headers="tableHeaders"
+            :items="data"
+            :loading="!loaded"
+            :model-value="[1006]"
+            @click:row="onUpdate"
+          >
+            <!--  -->
+            <template #item.user.fullName="{ item }">
+              <div class="d-flex flex-row flex-nowrap align-center gap-3">
+                <AppAvatar
+                  :src="item.raw.profilePath"
+                  :alt="item.raw.user.fullName"
+                />
+                <div>
+                  <span class="d-block font-weight-bold">{{ item.raw.user.fullName }}</span>
+                  <span class="d-block mt-n1 text-xs">{{ item.raw.studentId }}</span>
+                </div>
+              </div>
+            </template>
+
+            <!--  -->
+            <template #item.action="{ item }">
+              <div class="d-flex flex-row gap-2">
+                <RouterLink
+                  :to="{
+                    name: 'students-students-studentid-tab',
+                    params: {
+                      studentid: helpers.security.encrypt(item.raw.id),
+                      tab: 'profile',
+                    },
+                    props: true
+                  }"
+                >
+                  <VBtn
+                    icon=""
+                    color="success"
+                    size="small"
+                    variant="text"
+                    @click.stop="$event => null"
+                  >
+                    <VIcon icon="tabler-user-cog" />
+                    <VTooltip activator="parent">
+                      view user
+                    </VTooltip>
+                  </VBtn>
+                </RouterLink>
+                <VBtn
+                  icon=""
+                  color="error"
+                  size="small"
+                  variant="text"
+                  @click.stop="onDeleteStudent(item.raw)"
+                >
+                  <VIcon icon="tabler-trash" />
+                </VBtn>
+              </div>
+            </template>
+          </AppTable>
         </VCard>
       </VCol>
     </VRow>

@@ -1,9 +1,8 @@
 <!-- eslint-disable vue/custom-event-name-casing -->
 <script setup>
-import AppDateTimePicker from "@/@core/components/app-form-elements/AppDateTimePicker.vue"
-import StudentService from '@/services/student.service'
-import useStudentStore from "@/stores/student.store"
-import { betweenValidator, emailValidator, requiredValidator } from '@core/utils/validators'
+import ParentService from "@/services/parent.service"
+import useParentStore from "@/stores/parent.store"
+import { emailValidator, integerValidator, requiredValidator } from '@core/utils/validators'
 import { inject, nextTick, watch } from "vue"
 
 const props = defineProps({
@@ -22,10 +21,10 @@ const emit = defineEmits([
 ])
 
 // 👉 Services
-const studentService = new StudentService()
+const parentService = new ParentService()
 
 // 👉 Store
-const studentStore = useStudentStore()
+const parentStore = useParentStore()
 
 // 👉 Visibility
 const visible = ref(false)
@@ -38,13 +37,10 @@ const formState = ref()
 
 // 👉 Form error
 const formError = ref({
-  Email: [],
-  Username: [],
-  Password: [],
   FirstName: [],
   LastName: [],
-  BirthDate: [],
-  StudentId: [],
+  Email: [],
+  MobileNo: [],
 })
 
 const isUpdateMode = computed(() => { 
@@ -68,20 +64,11 @@ watch(visible, visible => {
 
 // 👉 Watch school model
 watch(visible, async visible => {
-  if (!visible) await studentStore.resetField()
+  if (!visible) await parentStore.resetField()
 
   // Set
-  formState.value = studentStore.getStudentModel
+  formState.value = parentStore.getParentModel
 }, { deep: true, immediate: true })
-
-// 👉 Watch state
-watch(formState, formState => {
-  if (formState.lastName?.length > 0 && formState.studentId?.length > 0) 
-  {
-    formState.password = `${formState.lastName}@${formState.studentId}`
-    formState.confirmPassword = `${formState.lastName}@${formState.studentId}`
-  }
-}, { deep: true })
 
 async function onSubmit() {
   if (await refVForm.value.validate()) (!isUpdateMode.value) ? await onCreate() : await onUpdate()
@@ -89,11 +76,11 @@ async function onSubmit() {
 
 async function onCreate() {
   try {
-    const { status: code, data: response, message: error } = await studentService.createStudent(formState.value)
+    const { status: code, data: response, message: error } = await parentService.createParent(formState.value)
 
     if (code == 200)
     {
-      studentStore.add(response)
+      parentStore.add(response)
       toast.success("Successfully created student.")
       
       visible.value = false
@@ -104,6 +91,7 @@ async function onCreate() {
       toast.error(error)
     }
   } catch (err) {
+    console.log(err)
     formError.value = err.response?.data?.errors ?? formError.value
   }
 }
@@ -132,23 +120,15 @@ async function onUpdate() {
 // 👉 Reset
 async function reset() {
   formError.value = ({
-    Email: [],
-    Username: [],
-    Password: [],
     FirstName: [],
     LastName: [],
-    BirthDate: [],
-    StudentId: [],
+    Email: [],
+    MobileNo: [],
   })
   await nextTick(() => { 
     refVForm.value.resetValidation()
     refVForm.value.reset()
   })
-}
-
-// 👉 Set selected school
-async function setSelectedSchool() {
-  localStorage.setItem("selectedSchool", JSON.stringify(formState.value))
 }
 
 // 
@@ -163,9 +143,6 @@ async function setSelectedSchool() {
     <template #content>
       <VForm ref="refVForm">
         <VRow>
-          <VCol cols="12">
-            <LabeledDivider title="Basic Information" />
-          </VCol>
           <VCol
             cols="12"
             md="6"
@@ -188,16 +165,6 @@ async function setSelectedSchool() {
               :error-messages="formError.LastName"
             />
           </VCol>
-          <VCol cols="12">
-            <AppDateTimePicker
-              v-model="formState.birthDate"
-              label="Birth Date"
-              :error-messages="formError.BirthDate"
-            />
-          </VCol>
-          <VCol cols="12">
-            <LabeledDivider title="Authentication & Identification" />
-          </VCol>
           <VCol
             cols="12"
             md="7"
@@ -214,50 +181,18 @@ async function setSelectedSchool() {
             md="5"
           >
             <VTextField
-              v-model="formState.username"
-              label="Username"
+              v-model="formState.mobileNo"
+              label="Mobile no."
+              :rules="[requiredValidator, integerValidator]"
+              :error-messages="formError.MobileNo"
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
+              v-model="formState.relation"
+              label="Relation"
               :rules="[requiredValidator]"
-              :error-messages="formError.Username"
-            />
-          </VCol>
-          <VCol
-            cols="12"
-            md="6"
-          >
-            <VTextField
-              v-model="formState.password"
-              label="Password"
-              :rules="[props.isUpdateMode ? () => true : requiredValidator, props.isUpdateMode ? () => true : betweenValidator(formState.password?.length, 8, 30)]"
-              :error-messages="formError.Password"
-              type="password"
-              new
-              autocomplete="new-password"
-            />
-          </VCol>
-          <VCol
-            cols="12"
-            md="6"
-          >
-            <VTextField
-              v-model="formState.confirmPassword"
-              label="Confirm Password"
-              :rules="[props.isUpdateMode ? () => true : requiredValidator, props.isUpdateMode ? () => true : () => (formState.password == formState.confirmPassword) || 'Password does not match']"
-              type="password"
-              new
-              autocomplete="new-password"
-            />
-          </VCol>
-          <VCol
-            cols="12"
-            md="6"
-            offset="0"
-            offset-md="3"
-          >
-            <VTextField
-              v-model="formState.studentId"
-              :label="`StudentID (${new Date(Date.now()).getFullYear()}xxxxxx)`"
-              :rules="[requiredValidator]"
-              :error-messages="formError.StudentId"
+              :error-messages="formError.Relation"
             />
           </VCol>
         </VRow>
