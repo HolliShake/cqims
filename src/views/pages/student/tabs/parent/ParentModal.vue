@@ -81,7 +81,7 @@ async function onCreate() {
     if (code == 200)
     {
       parentStore.add(response)
-      toast.success("Successfully created student.")
+      toast.success("Successfully created parent.")
       
       visible.value = false
       reset()
@@ -98,12 +98,12 @@ async function onCreate() {
 
 async function onUpdate() {
   try {
-    const { status: code, data: response, message: error } = await studentService.updateStudent(formState.value.id, formState.value)
+    const { status: code, data: response, message: error } = await parentService.updateParent(formState.value.id, formState.value)
     
     if (code >= 200 && code <= 299)
     {
-      studentStore.update(response)
-      toast.success("Successfully updated student.")
+      parentStore.update(response)
+      toast.success("Successfully updated parent.")
 
       visible.value = false
       reset()
@@ -138,7 +138,7 @@ async function reset() {
 <template>
   <AppDialog v-model="visible">
     <template #title>
-      Student Details
+      Parent Details
     </template>
     <template #content>
       <VForm ref="refVForm">

@@ -49,6 +49,9 @@ const isUpdateMode = ref(false)
 // 👉 Toast
 const toast = inject("toast")
 
+// 👉 Swal
+const swal = inject("swal")
+
 const data = computed(() => {
   return parentStore.getParent
 })
@@ -62,6 +65,29 @@ async function onUpdate(parent) {
   isModalVisible.value = true
   isUpdateMode.value = true
   parentStore.setField(parent.raw)
+}
+
+async function onDelete(parent) {
+  swal.value.fire({
+    question: "Are you sure you want to delete this parent?",
+    dangerMode: true,
+  })
+    .then(async result => {
+      if (!result) return
+
+      try 
+      {
+        const { status: code, data: response } = await parentService.deleteParent(parent.id)
+        
+        if (code >= 200 && code <= 299)
+        {
+          toast.success("Successfully deleted parent.")
+          parentStore.deleteParent(parent.id)
+        }
+      } catch (error) {
+        toast.error(error.response?.data ?? error.message)
+      }
+    })
 }
 
 onMounted(async () => {
@@ -89,6 +115,7 @@ onMounted(async () => {
       :headers="tableHeaders"
       :items="data"
       style="border-top: none !important;"
+      @click:row="onUpdate"
     >
       <template #item.action="{ item }">
         <VBtn
@@ -96,6 +123,7 @@ onMounted(async () => {
           variant="text"
           size="small"
           color="error"
+          @click.stop="onDelete(item.raw)"
         >
           <VTooltip activator="parent">
             Delete parent
