@@ -61,8 +61,8 @@ const useParentStore = defineStore("Parent", {
         parent,
       )
     },
-    async delete(parentId) {
-      this.parents = this.parents.filter(parent => parent.id != parentId)
+    async delete(parent) {
+      this.parents = this.parents.filter(p => p.id != parent.id)
     },
     async setChild(childId) {
       this.childId = childId

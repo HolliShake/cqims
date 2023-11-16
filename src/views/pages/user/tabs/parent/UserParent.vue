@@ -85,7 +85,7 @@ async function onDelete(parent) {
         if (code >= 200 && code <= 299)
         {
           toast.success("Successfully deleted parent.")
-          parentStore.delete(parent.id)
+          parentStore.delete(parent)
         }
       } catch (error) {
         toast.error(error.response?.data ?? error.message)

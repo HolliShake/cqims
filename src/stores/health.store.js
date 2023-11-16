@@ -47,8 +47,8 @@ const useHealthStore = defineStore('Health', {
       )
     },
 
-    async delete(healthId) {
-      this.health = this.health.filter(item => item.id !== healthId)
+    async delete(health) {
+      this.health = this.health.filter(item => item.id !== health.id)
     },
 
     async setUser(userId) {

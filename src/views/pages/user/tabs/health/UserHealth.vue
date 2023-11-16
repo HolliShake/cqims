@@ -64,7 +64,7 @@ async function onDelete(health) {
         if (code >= 200 && code <= 299)
         {
           toast.success("Successfully deleted health info.")
-          healthStore.delete(health.id)
+          healthStore.delete(health)
         }
       } catch (error) {
         toast.error(error.response?.data ?? error.message)

@@ -2,7 +2,7 @@
 <template>
   <VCard>
     <VCardText>
-      <h1>SKILLS COMMING SOON!</h1>
+      <h1>ACHIEVEMENT COMMING SOON!</h1>
     </VCardText>
   </VCard>
 </template>

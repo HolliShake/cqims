@@ -8,6 +8,8 @@ import StudentHealth from "@/views/pages/user/tabs/health/UserHealth.vue"
 import StudentParent from "@/views/pages/user/tabs/parent/UserParent.vue"
 import StudentProfile from "@/views/pages/user/tabs/profile/UserProfile.vue"
 import StudentSkill from "@/views/pages/user/tabs/skills/UserSkill.vue"
+import StudentEducation from "@/views/pages/user/tabs/education/UserEducation.vue"
+import StudentAchievement from "@/views/pages/user/tabs/achievement/UserAchievement.vue"
 import { watch } from "vue"
 import { useRouter } from 'vue-router'
 
@@ -109,6 +111,8 @@ function getValidTab(tabKey) {
     parent: StudentParent,
     health: StudentHealth,
     skills: StudentSkill,
+    education: StudentEducation,
+    achievement: StudentAchievement,
   }
 
   return t[tabKey]
