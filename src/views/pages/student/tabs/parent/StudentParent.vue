@@ -46,6 +46,9 @@ const isModalVisible = ref(false)
 // 👉 Update flag
 const isUpdateMode = ref(false)
 
+// 👉 Is Loaded flag
+const isLoaded = ref(false)
+
 // 👉 Toast
 const toast = inject("toast")
 
@@ -82,7 +85,7 @@ async function onDelete(parent) {
         if (code >= 200 && code <= 299)
         {
           toast.success("Successfully deleted parent.")
-          parentStore.deleteParent(parent.id)
+          parentStore.delete(parent.id)
         }
       } catch (error) {
         toast.error(error.response?.data ?? error.message)
@@ -98,6 +101,7 @@ onMounted(async () => {
     if (code == 200)
     {
       console.log(response)
+      isLoaded.value = true
       parentStore.initialize(response)
     }
   } catch (error) {
@@ -114,6 +118,7 @@ onMounted(async () => {
       class="student-parent-table"
       :headers="tableHeaders"
       :items="data"
+      :loading="!isLoaded"
       style="border-top: none !important;"
       @click:row="onUpdate"
     >

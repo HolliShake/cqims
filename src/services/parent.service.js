@@ -5,6 +5,14 @@ class ParentService {
     this._endPoint = "/Parent"
   }
 
+  async getAllParents() {
+    return await axiosIns.get(this._endPoint + "/All")
+  }
+
+  async getParentById(parentId) {
+    return await axiosIns.get(this._endPoint + `/${parentId}`)
+  }
+
   async getParentsByUserId(userId) {
     return await axiosIns.get(this._endPoint + "/User" + `/${userId}`)
   }

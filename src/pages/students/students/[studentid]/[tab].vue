@@ -2,7 +2,9 @@
 import StudentContext from "@/context/StudentContext.vue"
 import useStudentContext from "@/context/useStudentContext"
 import { helpers } from "@/helpers"
+import useHealthStore from "@/stores/health.store"
 import useParentStore from "@/stores/parent.store"
+import StudentHealth from "@/views/pages/student/tabs/health/StudentHealth.vue"
 import StudentParent from "@/views/pages/student/tabs/parent/StudentParent.vue"
 import StudentProfile from "@/views/pages/student/tabs/profile/StudentProfile.vue"
 import { watch } from "vue"
@@ -54,7 +56,7 @@ const tabs = ref([
     icon: 'tabler-user',
   },
   {
-    title: "PARENT",
+    title: "PARENT/GUARIDAN/FAMILY MEMBER",
     key: "parent",
     icon: 'tabler-users',
   },
@@ -83,6 +85,9 @@ const tabs = ref([
 // 👉 Parent Store
 const parentStore = useParentStore()
 
+// 👉 Health Store
+const healthStore = useHealthStore()
+
 // 👉 Context store
 const contextStore = useStudentContext
 
@@ -101,6 +106,7 @@ function getValidTab(tabKey) {
   const t = {
     profile: StudentProfile,
     parent: StudentParent,
+    health: StudentHealth,
   }
 
   return t[tabKey]
@@ -119,6 +125,7 @@ watch(currentTab, tab => {
 
 watch(contextStore, ctx => {
   parentStore.setChild(ctx.getStudentData.user.id)
+  healthStore.setUser(ctx.getStudentData.user.id)
 }, { deep: true })
 
 // 
