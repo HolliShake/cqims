@@ -4,9 +4,10 @@ import useStudentContext from "@/context/useStudentContext"
 import { helpers } from "@/helpers"
 import useHealthStore from "@/stores/health.store"
 import useParentStore from "@/stores/parent.store"
-import StudentHealth from "@/views/pages/student/tabs/health/StudentHealth.vue"
-import StudentParent from "@/views/pages/student/tabs/parent/StudentParent.vue"
-import StudentProfile from "@/views/pages/student/tabs/profile/StudentProfile.vue"
+import StudentHealth from "@/views/pages/user/tabs/health/UserHealth.vue"
+import StudentParent from "@/views/pages/user/tabs/parent/UserParent.vue"
+import StudentProfile from "@/views/pages/user/tabs/profile/UserProfile.vue"
+import StudentSkill from "@/views/pages/user/tabs/skills/UserSkill.vue"
 import { watch } from "vue"
 import { useRouter } from 'vue-router'
 
@@ -107,6 +108,7 @@ function getValidTab(tabKey) {
     profile: StudentProfile,
     parent: StudentParent,
     health: StudentHealth,
+    skills: StudentSkill,
   }
 
   return t[tabKey]
