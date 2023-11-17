@@ -1,3 +1,19 @@
+<script setup>
+const items = computed(() => {
+  return []
+})
+
+const self_assisted = computed(() => {
+  return items.value
+})
+
+const from_evaluation = computed(() => {
+  return items.value
+})
+
+
+// 
+</script>
 
 <template>
   <VCard>

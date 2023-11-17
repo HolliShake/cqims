@@ -5,7 +5,6 @@ import EducationService from "@/services/education.service"
 import useEducationStore from "@/stores/education.store"
 import { requiredValidator } from '@core/utils/validators'
 import { inject, nextTick, watch } from "vue"
-import { StatusMap } from "./status.map"
 
 const props = defineProps({
   modelValue: {

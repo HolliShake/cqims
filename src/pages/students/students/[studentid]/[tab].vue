@@ -2,14 +2,15 @@
 import StudentContext from "@/context/StudentContext.vue"
 import useStudentContext from "@/context/useStudentContext"
 import { helpers } from "@/helpers"
+import useEducationStore from "@/stores/education.store"
 import useHealthStore from "@/stores/health.store"
 import useParentStore from "@/stores/parent.store"
+import StudentAchievement from "@/views/pages/user/tabs/achievement/UserAchievement.vue"
+import StudentEducation from "@/views/pages/user/tabs/education/UserEducation.vue"
 import StudentHealth from "@/views/pages/user/tabs/health/UserHealth.vue"
 import StudentParent from "@/views/pages/user/tabs/parent/UserParent.vue"
 import StudentProfile from "@/views/pages/user/tabs/profile/UserProfile.vue"
 import StudentSkill from "@/views/pages/user/tabs/skills/UserSkill.vue"
-import StudentEducation from "@/views/pages/user/tabs/education/UserEducation.vue"
-import StudentAchievement from "@/views/pages/user/tabs/achievement/UserAchievement.vue"
 import { watch } from "vue"
 import { useRouter } from 'vue-router'
 
@@ -91,6 +92,9 @@ const parentStore = useParentStore()
 // 👉 Health Store
 const healthStore = useHealthStore()
 
+// 👉 Education Store
+const educationStore = useEducationStore()
+
 // 👉 Context store
 const contextStore = useStudentContext
 
@@ -132,6 +136,7 @@ watch(currentTab, tab => {
 watch(contextStore, ctx => {
   parentStore.setChild(ctx.getStudentData.user.id)
   healthStore.setUser(ctx.getStudentData.user.id)
+  educationStore.setUser(ctx.getStudentData.user.id)
 }, { deep: true })
 
 // 

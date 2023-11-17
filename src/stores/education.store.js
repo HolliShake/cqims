@@ -1,4 +1,4 @@
-import { merge } from "lodash"
+import { cloneDeep, merge } from "lodash"
 import { defineStore } from "pinia"
 
 const defaultModel = () => ({
@@ -23,7 +23,16 @@ const useEducationStore = defineStore("Education", {
       return this.educations
     },
     getEducationModel() {
-      return this.educationModel
+      const model = cloneDeep(this.educationModel)
+      
+      if (!this.userId)
+      {
+        console.warn("User id is not set")
+      }
+
+      model.userId = this.userId
+
+      return model
     },
     getUserId() {
       return this.userId
