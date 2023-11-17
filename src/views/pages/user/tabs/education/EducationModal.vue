@@ -98,7 +98,8 @@ async function onCreate() {
 }
 
 async function onUpdate() {
-  try {
+  try 
+  {
     const { status: code, data: response, message: error } = await healthService.updateHealth(formState.value.id, formState.value)
     
     if (code >= 200 && code <= 299)
