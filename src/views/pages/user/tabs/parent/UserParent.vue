@@ -30,29 +30,12 @@ const tableHeaders = ref([
     width: 120,
   },
 ])
-
-// 👉 Parent Service
 const parentService = new ParentService()
-
-// 👉 Parent store
 const parentStore = useParentStore()
-
-// 👉 Context store
 const studentContext = useStudentContext
-
-// 👉 Modal visiblity
-const isModalVisible = ref(false)
-
-// 👉 Update flag
-const isUpdateMode = ref(false)
-
-// 👉 Is Loaded flag
+const modalRef = ref()
 const isLoaded = ref(false)
-
-// 👉 Toast
 const toast = inject("toast")
-
-// 👉 Swal
 const swal = inject("swal")
 
 const data = computed(() => {
@@ -60,14 +43,11 @@ const data = computed(() => {
 })
 
 async function onCreate() {
-  isModalVisible.value = true
-  isUpdateMode.value = false
+  modalRef.value.open()
 }
 
 async function onUpdate(parent) {
-  isModalVisible.value = true
-  isUpdateMode.value = true
-  parentStore.setField(parent.raw)
+  modalRef.value.openAsUpdateMode(parent.raw)
 }
 
 async function onDelete(parent) {
@@ -100,7 +80,6 @@ onMounted(async () => {
 
     if (code == 200)
     {
-      console.log(response)
       isLoaded.value = true
       parentStore.initialize(response)
     }
@@ -146,8 +125,7 @@ onMounted(async () => {
   />
 
   <ParentModal
-    v-model="isModalVisible"
-    :is-update-mode="isUpdateMode"
+    ref="modalRef"
   />
 </template>
 
@@ -160,9 +138,11 @@ onMounted(async () => {
   border: none !important;
 }
 
+/*
 .student-parent-table.v-table thead > tr > .v-data-table__td {
   border: none !important;
 }
+*/
 
 .student-parent-table.v-table tbody .v-data-table__tr > .v-data-table__td {
   border: none !important;

@@ -7,8 +7,8 @@ class AcademicProgramService {
     this._endPoint = "/Core/AcademicProgram"
   }
 
-  async getAcademicProgramsByDeliveryUniId(deliveryUnitId) {
-    return axiosIns.get(this._endPoint + "/DeliveryUnit" + `/${deliveryUnitId}`)
+  async getAcademicProgramsByDepartmentId(departmentId) {
+    return axiosIns.get(this._endPoint + "/Department" + `/${departmentId}`)
   }
 
   async createAcademicProgram(payload) {

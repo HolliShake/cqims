@@ -167,7 +167,10 @@ watch(contextStore, ctx => {
       </VCol>  
       <!--  -->
       <VCol cols="12">
-        <VWindow v-model="currentTab">
+        <VWindow 
+          v-model="currentTab"
+          class="disable-tab-transition"
+        >
           <VWindowItem
             v-for="t in tabs"
             :key="t.key"

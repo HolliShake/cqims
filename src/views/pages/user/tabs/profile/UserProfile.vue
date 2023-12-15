@@ -6,7 +6,7 @@ import StudentModal from '@/views/pages/student/StudentModal.vue'
 import { inject } from 'vue'
 
 // 👉 Student data
-const studentData = inject("studentData")
+const studentContext = inject("studentContext")
 
 // 👉 Store
 const store = useStudentStore()
@@ -17,37 +17,37 @@ const computedCardData = computed(() => {
       title: "ADDRESS",
       icon: "mdi-home",
       color: "success",
-      value: studentData.value.address ?? "Not Set",
+      value: studentContext.value.address ?? "Not Set",
     },
     {
       title: "GENDER",
       icon: "mdi-gender-male-female",
       color: "success",
-      value: studentData.value.gender ?? "Not Set",
+      value: studentContext.value.gender ?? "Not Set",
     },
     {
       title: "MOBILE",
       icon: "mdi-cellphone",
       color: "success",
-      value: studentData.value.user.phoneNumber ?? "Not Set",
+      value: studentContext.value.user.phoneNumber ?? "Not Set",
     },
     {
       title: "EMAL",
       icon: "mdi-email",
       color: "success",
-      value: studentData.value.user.email ?? "Not Set",
+      value: studentContext.value.user.email ?? "Not Set",
     },
     {
       title: "NATIONALITY",
       icon: "mdi-earth",
       color: "success",
-      value: studentData.value.user.nationality ?? "Not Set",
+      value: studentContext.value.user.nationality ?? "Not Set",
     },
     {
       title: "BIRTHDATE",
       icon: "mdi-calendar",
       color: "success",
-      value: (studentData.value.user.birthDate && helpers.formater.dateToWord(studentData.value.user.birthDate)) ?? "Not Set",
+      value: (studentContext.value.user.birthDate && helpers.formater.dateToWord(studentContext.value.user.birthDate)) ?? "Not Set",
     },
   ]
 })
@@ -57,21 +57,21 @@ const isModalVisible = ref(false)
 
 async function onUpdate() {
   isModalVisible.value = true
-  store.setCampus(studentData.value.campusId)
+  store.setCampus(studentContext.value.campusId)
   store.setField({
-    id: studentData.value.id,
-    email: studentData.value.user.email,
-    username: studentData.value.user.username,
+    id: studentContext.value.id,
+    email: studentContext.value.user.email,
+    username: studentContext.value.user.username,
     password: "",
-    firstName: studentData.value.user.firstName,
-    lastName: studentData.value.user.lastName,
-    birthDate: studentData.value.user.birthDate,
-    studentId: studentData.value.studentId,
-    campusId: studentData.value.campusId,
+    firstName: studentContext.value.user.firstName,
+    lastName: studentContext.value.user.lastName,
+    birthDate: studentContext.value.user.birthDate,
+    studentId: studentContext.value.studentId,
+    campusId: studentContext.value.campusId,
   })
 }
 
-watch(studentData, val => {
+watch(studentContext, val => {
   store.setCampus(val.campusId)
 }, { deep: true, immediate: true })
 
@@ -93,15 +93,15 @@ watch(studentData, val => {
             >
               <AppAvatar
                 :size="128"
-                :src="studentData.profilePic ?? null"
-                :alt="studentData.user.fullName ?? null"
+                :src="studentContext.profilePic ?? null"
+                :alt="studentContext.user.fullName ?? null"
               />
             </div>  
             <!---->
             <div class="text-center text-md-start">
               <div class="d-flex flex-row flex-nowrap gap-2 align-center">
                 <h3 class="text-h3 font-weight-bold mb-0">
-                  {{ studentData.user.fullName ?? null }}
+                  {{ studentContext.user.fullName ?? null }}
                 </h3>
                 <VBtn
                   rounded="sm"
@@ -119,7 +119,7 @@ watch(studentData, val => {
                 </VBtn>
               </div>
               <span class="text-subtitle-2 text-xs text-disabled">
-                {{ studentData.studentId ?? null }}
+                {{ studentContext.studentId ?? null }}
               </span>  
             </div>  
           </div>

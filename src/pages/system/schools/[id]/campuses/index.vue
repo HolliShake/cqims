@@ -281,13 +281,13 @@ async function handleLink(campus) {
               },
               props: true
             }"
+            @click.stop="handleLink(item.raw)"
           >
             <VBtn 
               color="success"
               icon="tabler-brand-superhuman" 
               variant="text"
               size="small"
-              @click.stop="handleLink(item.raw)"
             >
               <VIcon icon="tabler-brand-superhuman" />
               <VTooltip activator="parent">
@@ -305,12 +305,12 @@ async function handleLink(campus) {
               },
               props: true
             }"
+            @click.stop="handleLink(item.raw)"
           >
             <VBtn 
               icon="tabler-building" 
               variant="text"
               size="small"
-              @click.stop="handleLink(item.raw)"
             >
               <VIcon
                 icon="tabler-building"

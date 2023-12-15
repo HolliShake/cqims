@@ -16,7 +16,7 @@ const defaultModel = () => ({
   isNonBoard: false,
   isOnCampus: false,
   isDistantLearning: false,
-  deliveryUnitId: 0,
+  departmentId: null,
   examinationId: 0,
   programCategoryId: 0,
 })
@@ -26,7 +26,7 @@ const useAcademicProgramStore = defineStore("AcademicProgramStore", {
   state: () => ({
     academicPrograms: [],
     academicProgramModel: defaultModel(),
-    deliveryUnit: null,
+    department: null,
   }),
 
   getters: {
@@ -36,12 +36,12 @@ const useAcademicProgramStore = defineStore("AcademicProgramStore", {
     getAcademicProgramModel() {
       const model = cloneDeep(this.academicProgramModel)
 
-      model.deliveryUnitId = this.deliveryUnit
+      model.departmentId = this.department
       
       return model
     },
-    getDeliveryUnit() {
-      return this.deliveryUnit
+    getDepartment() {
+      return this.department
     },
   },
 
@@ -69,8 +69,8 @@ const useAcademicProgramStore = defineStore("AcademicProgramStore", {
       this.academicPrograms = this.academicPrograms.filter(ap => ap.id != academicProgram.id)
     },
 
-    async setDeliveryUnit(deliveryUnitId) {
-      this.deliveryUnit = deliveryUnitId
+    async setDepartment(departmentId) {
+      this.department = departmentId
     },
 
     async setField(academicProgram) {

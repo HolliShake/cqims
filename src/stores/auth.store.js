@@ -4,6 +4,12 @@ const useAuthStore = defineStore("AuthStore", {
   state: () => ({
     credential: null,
   }),
+
+  getters: {
+    getCredential() {
+      return this.credential
+    }
+  },
     
   actions: {
     async setCredential(credential) {
@@ -14,7 +20,6 @@ const useAuthStore = defineStore("AuthStore", {
       localStorage.setItem("userData", JSON.stringify(credential))
 
       // Refresh token
-
     },
   },
 })

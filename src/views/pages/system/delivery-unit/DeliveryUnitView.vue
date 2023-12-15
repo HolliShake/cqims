@@ -1,10 +1,12 @@
-
 <script setup>
+import { helpers } from '@/helpers'
 import DeliveryUnitService from '@/services/delivery-units.service'
+import DepartmentService from '@/services/department.service'
 import useDeliveryUnitStore from '@/stores/delivery-unit.store'
-import DUAcademicProgramList from "@/views/pages/system/academic-programs/DUAcademicProgramList.vue"
+import useDepartmentStore from '@/stores/department.store'
 import { cloneDeep } from 'lodash'
 import { computed, inject } from 'vue'
+import DepartmentModal from '../department/DepartmentModal.vue'
 import DeliveryUnitModal from './DeliveryUnit-Modal.vue'
 
 // 👉 Du service
@@ -12,6 +14,12 @@ const duService = new DeliveryUnitService()
 
 // 👉 Du store 
 const duStore = useDeliveryUnitStore()
+
+// 👉 Department service
+const departmentService = new DepartmentService()
+
+// 👉 Department store
+const departmentStore = useDepartmentStore()
 
 // 👉 Delivery unit
 const selectedDeliveryUnit = inject("selectedDeliveryUnit", ref(null), false)
@@ -24,11 +32,27 @@ const duData = computed(() => {
 // 👉 Is delivery unit modal visible
 const isDeliveryUnitModalVisible = ref(false)
 
+// 👉 Department modal ref
+const departmentModalRef = ref(null)
+
+// 👉 Department loaded
+const isDepartmentLoaded = ref(false)
+
+// 👉 Search
+const search = ref("")
+
 // 👉 Swal
 const swal = inject("swal")
 
 // 👉 Toast
 const toast = inject("toast")
+
+// 👉 Departments
+const departments = computed(() => {
+  return departmentStore.getDepartments
+    .filter(department => department.departmentName.toLowerCase().includes(search.value.toLowerCase()))
+    .sort((a, b) => a.departmentName.length - b.departmentName.length)
+})
 
 // 👉 On edit click event
 async function onEdit() {
@@ -68,6 +92,55 @@ async function onDelete() {
 
     })
 }
+
+async function onCreateDepartment() {
+  departmentModalRef.value.open()
+}
+
+async function onUpdateDepartment(department) {
+  departmentModalRef.value.openAsUpdateMode(department)
+}
+
+async function onDeleteDepartment(department) {
+  swal.value.fire({
+    question: `Delete department "${ department.departmentName }"?`,
+    dangerMode: true,
+  })
+    .then(async result => {
+      if (!result) return
+
+      try {
+        const { status: code } = await departmentService.deleteDepartment(department.id)
+
+        if (code >= 200 && code <= 299)
+        {
+          departmentStore.delete(department)
+          toast.success("Successfully deleted department.")
+        } else 
+        {
+          toast.error(error)
+        }
+      } catch (err) {
+        toast.error(err.response?.data ?? err.message)
+      } 
+
+    })
+}
+
+watch(selectedDeliveryUnit, async du => {
+  departmentStore.setDeliveryUnit(du)
+
+  try {
+    const { status: code, data: response } = await departmentService.getDepartmentByDeliveryUnitId(du)
+
+    if (code == 200) {
+      departmentStore.initialize(response)
+      isDepartmentLoaded.value = true
+    }
+  } catch (err) {
+    toast.error(err.response?.data ?? err.message)
+  }
+}, { deep: true, immediate: true })
 
 // 
 </script>
@@ -133,11 +206,89 @@ async function onDelete() {
           </VMenu>
         </VBtn>
       </VCol>
-    </VRow>
+    </VRow>    
+    <div class="d-flex flex-row flex-nowrap gap-3 w-100 py-4 text-end">
+      <VTextField 
+        v-model="search"
+        label="Search" 
+      />
+      <VBtn @click="onCreateDepartment">
+        <VIcon 
+          start
+          icon="tabler-location-plus"
+        />
+        ADD DEPARTMENT
+      </VBtn>
+    </div>
+    <VList border>
+      <template v-if="!isDepartmentLoaded">
+        <VSkeletonLoader
+          type="list-item@4"
+          :loading="!isDepartmentLoaded"
+        />
+      </template>
+      <template v-else>
+        <VListItem v-if="departments.length <= 0">
+          <p class="text-center ma-0">
+            No Data Available.
+          </p>
+        </VListItem>
+        <template
+          v-for="(department, index) in departments"
+          :key="`department-${index}`"
+        >
+          <VListItem @click="onUpdateDepartment(department)">
+            <VListItemTitle>
+              <span class="text-uppercase font-weight-bold">
+                {{ department.departmentName }}
+              </span>
+            </VListItemTitle>
 
-    <div class="py-3" />
+            <template #append>
+              <div class="d-flex flex-row flex-nowrap gap-2">
+                <VBtn
+                  icon=""
+                  variant="text"
+                  color="error"
+                  size="x-small"
+                  @click.stop="onDeleteDepartment(department)"
+                >
+                  <VIcon icon="tabler-trash" />
+                  <VTooltip activator="parent">
+                    Delete department
+                  </VTooltip>
+                </VBtn>
 
-    <DUAcademicProgramList />
+                <RouterLink
+                  :to="{
+                    name: 'system-schools-id-campuses-campusid-delivery-units-departmentid',
+                    params: {
+                      departmentid: helpers.security.encrypt(department.id)
+                    },
+                    props: true
+                  }"
+                >
+                  <VBtn
+                    icon=""
+                    variant="tonal"
+                    color="success"
+                    size="x-small"
+                    @click.stop="$event => null"
+                  >
+                    <VIcon icon="tabler-chevron-right" />
+                    <VTooltip activator="parent">
+                      Visit programs
+                    </VTooltip>
+                  </VBtn>
+                </RouterLink>
+              </div>
+            </template>
+          </VListItem>
+
+          <VDivider v-if="index < departments.length - 1" />
+        </template>
+      </template>
+    </VList>
   </VCard>
 
   <Teleport to="#app">
@@ -145,5 +296,7 @@ async function onDelete() {
       v-model="isDeliveryUnitModalVisible"
       :is-update-mode="!!true"
     />
+
+    <DepartmentModal ref="departmentModalRef" />
   </Teleport>
 </template>

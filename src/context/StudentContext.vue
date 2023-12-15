@@ -28,7 +28,7 @@ const studentData = computed(() => {
 const loaded = ref(false)
 
 // 👉 Pass to children
-provide("studentData", studentData)
+provide("studentContext", studentData)
 
 onMounted(async () => {
   try
@@ -43,7 +43,7 @@ onMounted(async () => {
     }
 
   } catch (error) {
-    toast.error("Failed to load student data...")
+    toast.error("Failed to load student data.")
   }
 })
 

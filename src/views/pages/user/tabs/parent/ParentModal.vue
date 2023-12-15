@@ -3,75 +3,41 @@
 import ParentService from "@/services/parent.service"
 import useParentStore from "@/stores/parent.store"
 import { emailValidator, integerValidator, requiredValidator } from '@core/utils/validators'
-import { inject, nextTick, watch } from "vue"
-
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
-  isUpdateMode: {
-    type: Boolean,
-    default: false,
-  },
-})
-
-const emit = defineEmits([
-  'update:modelValue',
-])
+import { inject, nextTick } from "vue"
 
 // 👉 Services
 const parentService = new ParentService()
-
-// 👉 Store
 const parentStore = useParentStore()
-
-// 👉 Visibility
-const visible = ref(false)
-
-// 👉 Form
+const modalRef = ref()
 const refVForm = ref()
-
-// 👉 Form state
 const formState = ref()
-
-// 👉 Form error
 const formError = ref({
   FirstName: [],
   LastName: [],
   Email: [],
   MobileNo: [],
 })
-
-const isUpdateMode = computed(() => { 
-  return props.isUpdateMode
-})
-
-// 👉 Toast
 const toast = inject('toast')
 
-// 👉 Watch props
-watch(props, props => {
-  visible.value = props.modelValue
-}, { deep: true })
-
-// 👉 Watch visible
-watch(visible, visible => {
-  emit('update:modelValue', visible)
+defineExpose({
+  open() {
+    modalRef.value.open()
+    parentStore.resetField()
+    formState.value = parentStore.getParentModel
+  },
+  openAsUpdateMode(data) {
+    parentStore.setField(data)
+    formState.value = parentStore.getParentModel
+    modalRef.value.openAsUpdateMode()
+  },
+  close() {
+    modalRef.value.close()
+    parentStore.resetField()
+  },
 })
 
-// ==================================================================
-
-// 👉 Watch school model
-watch(visible, async visible => {
-  if (!visible) await parentStore.resetField()
-
-  // Set
-  formState.value = parentStore.getParentModel
-}, { deep: true, immediate: true })
-
 async function onSubmit() {
-  if (await refVForm.value.validate()) (!isUpdateMode.value) ? await onCreate() : await onUpdate()
+  if (await refVForm.value.validate()) (!modalRef.value.isUpdateMode()) ? await onCreate() : await onUpdate()
 }
 
 async function onCreate() {
@@ -83,12 +49,8 @@ async function onCreate() {
       parentStore.add(response)
       toast.success("Successfully created parent.")
       
-      visible.value = false
+      modalRef.value.close()
       reset()
-    }
-    else
-    {
-      toast.error(error)
     }
   } catch (err) {
     console.log(err)
@@ -104,13 +66,9 @@ async function onUpdate() {
     {
       parentStore.update(response)
       toast.success("Successfully updated parent.")
-
-      visible.value = false
+      
+      modalRef.value.close()
       reset()
-    }
-    else
-    {
-      toast.error(error)
     }
   } catch (err) {
     formError.value = err.response?.data?.errors ?? formError.value
@@ -136,7 +94,10 @@ async function reset() {
 
 
 <template>
-  <AppDialog v-model="visible">
+  <AppModal 
+    ref="modalRef"
+    :max-width="430"
+  >
     <template #title>
       Parent Details
     </template>
@@ -145,52 +106,48 @@ async function reset() {
         <VRow>
           <VCol
             cols="12"
-            md="6"
           >
+            <span class="font-weight-bold text-sm">First Name</span>
             <VTextField
               v-model="formState.firstName"
-              label="First Name"
               :rules="[requiredValidator]"
               :error-messages="formError.FirstName"
             />
           </VCol>
           <VCol
             cols="12"
-            md="6"
           >
+            <span class="font-weight-bold text-sm">Last Name</span>
             <VTextField
               v-model="formState.lastName"
-              label="Last Name"
               :rules="[requiredValidator]"
               :error-messages="formError.LastName"
             />
           </VCol>
           <VCol
             cols="12"
-            md="7"
           >
+            <span class="font-weight-bold text-sm">Email</span>
             <VTextField
               v-model="formState.email"
-              label="Email"
               :rules="[requiredValidator, emailValidator]"
               :error-messages="formError.Email"
             />
           </VCol>
           <VCol
             cols="12"
-            md="5"
           >
+            <span class="font-weight-bold text-sm">Mobile No.</span>
             <VTextField
               v-model="formState.mobileNo"
-              label="Mobile no."
               :rules="[requiredValidator, integerValidator]"
               :error-messages="formError.MobileNo"
             />
           </VCol>
           <VCol cols="12">
+            <span class="font-weight-bold text-sm">Relation</span>
             <VTextField
               v-model="formState.relation"
-              label="Relation"
               :rules="[requiredValidator]"
               :error-messages="formError.Relation"
             />
@@ -198,12 +155,12 @@ async function reset() {
         </VRow>
       </VForm>
     </template>
-    <template #actions>
+    <template #actions="{ isUpdateMode }">
       <VBtn
+        class="mt-2"
         variant="elevated"
-        :color="(!isUpdateMode) ? 'primary' : 'secondary'"
-        :class="$vuetify.display.mdAndDown ? 'mt-5' : 'ms-3'"
-        :block="$vuetify.display.mdAndDown"
+        :color="(!isUpdateMode) ? 'success' : 'secondary'"
+        block
         @click="onSubmit"
       >
         <VIcon
@@ -213,5 +170,5 @@ async function reset() {
         {{ (!isUpdateMode) ? 'SUBMIT' : 'UPDATE' }}
       </VBtn>
     </template>
-  </AppDialog>
+  </AppModal>
 </template>

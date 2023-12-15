@@ -6,31 +6,13 @@ import useHealthStore from "@/stores/health.store"
 import { onMounted } from "vue"
 import HealthModal from "./HealthModal.vue"
 
-// 👉 Service
 const healthService = new HealthService()
-
-// 👉 Store
 const healthStore = useHealthStore()
-
-// 👉 Context store
 const studentContext = useStudentContext
-
-// 👉 Search
 const search = ref("")
-
-// 👉 Modal visiblity
-const isModalVisible = ref(false)
-
-// 👉 Update flag
-const isUpdateMode = ref(false)
-
-// 👉 Loaded flag
+const modalRef = ref(false)
 const loaded = ref(false)
-
-// 👉 Toast
 const toast = inject("toast")
-
-// 👉 Swal
 const swal = inject("swal")
 
 const items = computed(() => {
@@ -39,14 +21,11 @@ const items = computed(() => {
 })
 
 async function onCreate() {
-  isModalVisible.value = true
-  isUpdateMode.value = false
+  modalRef.value.open()
 }
 
 async function onUpdate(health) {
-  isModalVisible.value = true
-  isUpdateMode.value = true
-  healthStore.setField(health)
+  modalRef.value.openAsUpdateMode(health)
 }
 
 async function onDelete(health) {
@@ -82,7 +61,6 @@ onMounted(async () => {
 
     if (code == 200)
     {
-      console.log(response)
       loaded.value = true
       healthStore.initializeHealth(response)
     }
@@ -173,7 +151,6 @@ onMounted(async () => {
   </VCard>
 
   <HealthModal
-    v-model="isModalVisible"
-    :is-update-mode="isUpdateMode"
+    ref="modalRef"
   />
 </template>

@@ -1,124 +1,80 @@
 <script setup>
-import AppDateTimePicker from "@/@core/components/app-form-elements/AppDateTimePicker.vue"
-import useStudentContext from "@/context/useStudentContext"
-import EducationService from "@/services/education.service"
-import useEducationStore from "@/stores/education.store"
-import { requiredValidator } from '@core/utils/validators'
-import { inject, nextTick, watch } from "vue"
+import { requiredValidator } from '@/@core/utils/validators';
+import SkillService from '@/services/skill.service';
+import useSkillStore from '@/stores/skill.store';
+import { inject } from 'vue';
 
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
-  isUpdateMode: {
-    type: Boolean,
-    default: false,
-  },
-})
-
-const emit = defineEmits([
-  'update:modelValue',
-])
-
-// 👉 Services
-const educationService = new EducationService()
-
-// 👉 Store
-const educationStore = useEducationStore()
-
-// 👉 Context
-const studentContext = useStudentContext
-
-// 👉 Visibility
-const visible = ref(false)
-
-// 👉 Form
-const refVForm = ref()
-
-// 👉 Form state
-const formState = ref()
-
-// 👉 Form error
+const skillService = new SkillService()
+const skillStore = useSkillStore()
+const authContext = inject("authContext")
+const studentContext = inject("studentContext")
+const modalRef = ref()
+const form = ref({})
 const formError = ref({
-  SchoolName: [],
-  From: [],
-  To: [],
-  Description: [],
-  Status: [],
+  SkillName: [],
+  SkillDescription: [],
+  SkillProgress: [],
+  SkillAssessmentType: [],
+})
+const refVForm = ref()
+const submitted = ref(false)
+const toast = inject("toast")
+
+defineExpose({
+  open() {
+    modalRef.value.open()
+    skillStore.resetField()
+    form.value = skillStore.getSkillModel
+  },
+  openAsUpdateMode(data) {
+    skillStore.setField(data)
+    form.value = skillStore.getSkillModel
+    modalRef.value.openAsUpdateMode()
+  },
+  close() {
+    modalRef.value.close()
+    skillStore.resetField()
+  },
 })
 
-const isUpdateMode = computed(() => { 
-  return props.isUpdateMode
-})
-
-// 👉 Toast
-const toast = inject('toast')
-
-// 👉 Watch props
-watch(props, props => {
-  visible.value = props.modelValue
-}, { deep: true })
-
-// 👉 Watch visible
-watch(visible, visible => {
-  emit('update:modelValue', visible)
-})
-
-// ==================================================================
-
-// 👉 Watch school model
-watch(visible, async visible => {
-  if (!visible) await educationStore.resetField()
-
-  // Set
-  formState.value = educationStore.getEducationModel
-}, { deep: true, immediate: true })
-
-async function onSubmit() {
-  if (await refVForm.value.validate()) (!isUpdateMode.value) ? await onCreate() : await onUpdate()
+async function submit() {
+  if (refVForm.value.validate()) (!modalRef.value.isUpdateMode())? await create() : await update()
 }
 
-async function onCreate() {
-  try {
-    const { status: code, data: response, message: error } = await educationService.createUserEducation(formState.value)
+async function create() {
+  try
+  {
+    const { status: code, data: response } = await skillService.createSkill({
+      ...(form.value),
+      skillAssessmentType: (authContext.value.id == studentContext.value.userId) ? 0 : 1,
+    })
 
-    if (code == 200)
-    {
-      educationStore.add(response)
-      toast.success("Successfully created user education.")
-      
-      visible.value = false
-      reset()
-    }
-    else
-    {
-      toast.error(error)
+    if (code == 200) {
+      toast.success("Successfully created skill.")
+      skillStore.add(response)
+      modalRef.value.close()
+
+      await reset()
     }
   } catch (err) {
-    console.log(err)
     formError.value = err.response?.data?.errors ?? formError.value
   }
 }
 
-async function onUpdate() {
-  try 
+async function update() {
+  try
   {
-    const { status: code, data: response, message: error } = await educationService.updateUserEducation(formState.value.id, formState.value)
-    
-    if (code >= 200 && code <= 299)
-    {
-      educationStore.update(response)
-      toast.success("Successfully updated user education.")
+    const { status: code, data: response } = await skillService.updateSkill(form.value.id, form.value)
 
-      visible.value = false
-      reset()
-    }
-    else
-    {
-      toast.error(error)
+    if (code == 200) {
+      toast.success("Successfully updated skill.")
+      skillStore.update(response)
+      modalRef.value.close()
+
+      await reset()
     }
   } catch (err) {
+    console.log(err);
     formError.value = err.response?.data?.errors ?? formError.value
   }
 }
@@ -126,11 +82,10 @@ async function onUpdate() {
 // 👉 Reset
 async function reset() {
   formError.value = ({
-    SchoolName: [],
-    From: [],
-    To: [],
-    Description: [],
-    Status: [],
+    SkillName: [],
+    SkillDescription: [],
+    SkillProgress: [],
+    SkillAssessmentType: [],
   })
   await nextTick(() => { 
     refVForm.value.resetValidation()
@@ -143,89 +98,83 @@ async function reset() {
 
 
 <template>
-  <AppDialog v-model="visible">
+  <AppModal 
+    ref="modalRef"
+    :max-width="430"
+  >
     <template #title>
-      Education Details
+      Skill Details
     </template>
     <template #content>
-      <VForm ref="refVForm">
+      <VForm
+        ref="refVForm"
+        v-model="submitted"
+        @submit.prevent="submit"
+      >
         <VRow>
           <VCol cols="12">
-            <VTextField
-              v-model="formState.schoolName"
-              label="School"
+            <span class="font-weight-bold text-sm">SKILL</span>
+            <VTextField 
+              v-model="form.skillName"
               :rules="[requiredValidator]"
-              :error-messages="formError.SchoolName"
             />
-          </VCol>
-          <VCol
-            cols="12"
-            class="py-0"
-          >
-            <LabeledDivider title="Date & Other Information" />
-          </VCol>
-          <VCol
-            cols="12"
-            md="6"
-          >
-            <AppDateTimePicker
-              v-model="formState.from"
-              label="From"
-              :rules="[requiredValidator]"
-              :error-messages="formError.From"
-            />
-          </VCol>
-          <VCol
-            cols="12"
-            md="6"
-          >
-            <AppDateTimePicker
-              v-model="formState.to"
-              label="To"
-              :error-messages="formError.To"
-            />
-          </VCol>
+          </VCol> 
           <VCol cols="12">
+            <span class="font-weight-bold text-sm">DESCRIPTION</span>
             <VTextarea
-              v-model="formState.description"
-              label="Description"
+              v-model="form.skillDescription"
+              auto-grow
               :rows="2"
               :max-rows="5"
-              auto-grow
               :rules="[requiredValidator]"
-              :error-messages="formError.Description"
             />
-          </VCol>
+          </VCol> 
           <VCol cols="12">
+            <div class="d-flex flex-row flex-nowrap align-center justify-space-between">
+              <span class="d-flex font-weight-bold text-sm">SKILL RATE</span>
+              <span class="d-flex font-weight-bold text-sm">{{ form.skillProgress }}%</span>  
+            </div>
             <VRadioGroup
-              v-model="formState.status"
+              v-model="form.skillProgress"
               inline
             >
               <VRadio
-                v-for="(status, index) in StatusMap"
-                :key="`status-${index}`"
-                :label="status.title"
-                :value="status.value"
+                label="Poor"
+                :value="0"
               />
+              <VRadio
+                label="Good"
+                :value="25"
+              />
+              <VRadio
+                label="Exceptional"
+                :value="50"
+              />
+              <VRadio
+                label="Excellent"
+                :value="75"
+              />
+              <VRadio
+                label="Proficient"
+                :value="100"
+              />  
             </VRadioGroup>
           </VCol>
-        </VRow>
+          <VCol cols="12">
+            <VBtn 
+              block
+              :color="(!modalRef.isUpdateMode()) ? 'success' : 'secondary'"
+              type="submit"
+            >
+              <VIcon 
+                start
+                :icon="(!modalRef.isUpdateMode()) ? 'tabler-location' : 'tabler-edit'"
+              />
+              {{ (!modalRef.isUpdateMode()) ? 'CREATE' : 'UPDATE' }}
+            </VBtn>  
+          </VCol>
+        </VRow>  
       </VForm>
     </template>
-    <template #actions>
-      <VBtn
-        variant="elevated"
-        :color="(!isUpdateMode) ? 'primary' : 'secondary'"
-        :class="$vuetify.display.mdAndDown ? 'mt-5' : 'ms-3'"
-        :block="$vuetify.display.mdAndDown"
-        @click="onSubmit"
-      >
-        <VIcon
-          start
-          :icon="(!isUpdateMode)? 'tabler-location' : 'tabler-edit'"
-        />
-        {{ (!isUpdateMode) ? 'SUBMIT' : 'UPDATE' }}
-      </VBtn>
-    </template>
-  </AppDialog>
+  </AppModal>
 </template>

@@ -1,43 +1,15 @@
 <script setup>
 import AppDateTimePicker from "@/@core/components/app-form-elements/AppDateTimePicker.vue"
-import useStudentContext from "@/context/useStudentContext"
 import EducationService from "@/services/education.service"
 import useEducationStore from "@/stores/education.store"
 import { requiredValidator } from '@core/utils/validators'
-import { inject, nextTick, watch } from "vue"
+import { inject, nextTick } from "vue"
 import { StatusMap } from "./status.map"
 
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
-  isUpdateMode: {
-    type: Boolean,
-    default: false,
-  },
-})
-
-const emit = defineEmits([
-  'update:modelValue',
-])
-
-// 👉 Services
 const educationService = new EducationService()
-
-// 👉 Store
 const educationStore = useEducationStore()
-
-// 👉 Context
-const studentContext = useStudentContext
-
-// 👉 Visibility
-const visible = ref(false)
-
-// 👉 Form
 const refVForm = ref()
-
-// 👉 Form state
+const modalRef = ref()
 const formState = ref()
 
 // 👉 Form error
@@ -49,35 +21,27 @@ const formError = ref({
   Status: [],
 })
 
-const isUpdateMode = computed(() => { 
-  return props.isUpdateMode
-})
-
-// 👉 Toast
 const toast = inject('toast')
 
-// 👉 Watch props
-watch(props, props => {
-  visible.value = props.modelValue
-}, { deep: true })
-
-// 👉 Watch visible
-watch(visible, visible => {
-  emit('update:modelValue', visible)
+defineExpose({
+  open() {
+    modalRef.value.open()
+    educationStore.resetField()
+    formState.value = educationStore.getEducationModel
+  },
+  openAsUpdateMode(data) {
+    educationStore.setField(data)
+    formState.value = educationStore.getEducationModel
+    modalRef.value.openAsUpdateMode()
+  },
+  close() {
+    modalRef.value.close()
+    educationStore.resetField()
+  },
 })
 
-// ==================================================================
-
-// 👉 Watch school model
-watch(visible, async visible => {
-  if (!visible) await educationStore.resetField()
-
-  // Set
-  formState.value = educationStore.getEducationModel
-}, { deep: true, immediate: true })
-
 async function onSubmit() {
-  if (await refVForm.value.validate()) (!isUpdateMode.value) ? await onCreate() : await onUpdate()
+  if (await refVForm.value.validate()) (!modalRef.value.isUpdateMode()) ? await onCreate() : await onUpdate()
 }
 
 async function onCreate() {
@@ -89,12 +53,8 @@ async function onCreate() {
       educationStore.add(response)
       toast.success("Successfully created user education.")
       
-      visible.value = false
+      modalRef.value.close()
       reset()
-    }
-    else
-    {
-      toast.error(error)
     }
   } catch (err) {
     console.log(err)
@@ -112,12 +72,8 @@ async function onUpdate() {
       educationStore.update(response)
       toast.success("Successfully updated user education.")
 
-      visible.value = false
+      modalRef.value.close()
       reset()
-    }
-    else
-    {
-      toast.error(error)
     }
   } catch (err) {
     formError.value = err.response?.data?.errors ?? formError.value
@@ -142,9 +98,11 @@ async function reset() {
 // 
 </script>
 
-
 <template>
-  <AppDialog v-model="visible">
+  <AppModal 
+    ref="modalRef"
+    :max-width="430"
+  >
     <template #title>
       Education Details
     </template>
@@ -152,9 +110,9 @@ async function reset() {
       <VForm ref="refVForm">
         <VRow>
           <VCol cols="12">
+            <span class="font-weight-bold text-sm">School</span>
             <VTextField
               v-model="formState.schoolName"
-              label="School"
               :rules="[requiredValidator]"
               :error-messages="formError.SchoolName"
             />
@@ -169,9 +127,9 @@ async function reset() {
             cols="12"
             md="6"
           >
+            <span class="font-weight-bold text-sm">From</span>
             <AppDateTimePicker
               v-model="formState.from"
-              label="From"
               :rules="[requiredValidator]"
               :error-messages="formError.From"
             />
@@ -180,16 +138,16 @@ async function reset() {
             cols="12"
             md="6"
           >
+            <span class="font-weight-bold text-sm">To</span>
             <AppDateTimePicker
               v-model="formState.to"
-              label="To"
               :error-messages="formError.To"
             />
           </VCol>
           <VCol cols="12">
+            <span class="font-weight-bold text-sm">Description</span>
             <VTextarea
               v-model="formState.description"
-              label="Description"
               :rows="2"
               :max-rows="5"
               auto-grow
@@ -213,12 +171,12 @@ async function reset() {
         </VRow>
       </VForm>
     </template>
-    <template #actions>
+    <template #actions="{ isUpdateMode }">
       <VBtn
+        class="mt-2"
         variant="elevated"
-        :color="(!isUpdateMode) ? 'primary' : 'secondary'"
-        :class="$vuetify.display.mdAndDown ? 'mt-5' : 'ms-3'"
-        :block="$vuetify.display.mdAndDown"
+        :color="(!isUpdateMode) ? 'success' : 'secondary'"
+        block
         @click="onSubmit"
       >
         <VIcon
@@ -228,5 +186,5 @@ async function reset() {
         {{ (!isUpdateMode) ? 'SUBMIT' : 'UPDATE' }}
       </VBtn>
     </template>
-  </AppDialog>
+  </AppModal>
 </template>

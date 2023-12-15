@@ -1,6 +1,5 @@
 <script setup>
 import { avatarText } from '@/@core/utils/formatters'
-import { helpers } from '@/helpers'
 import AcademicTermService from '@/services/academic-term.service'
 import CurriculumService from '@/services/curriculum.service'
 import useCurriculumStore from '@/stores/curriculum.store'
@@ -10,7 +9,7 @@ import { inject } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
-  deliveryunitid: {
+  academicprogramid: {
     type: String,
     required: true,
   },
@@ -81,6 +80,7 @@ const tableHeaders = ref([
     key: "status",
     width: "200",
     align: "center",
+    sortable: false,
   },
 ])
 
@@ -212,9 +212,8 @@ async function onDelete(curriculumRaw)
 
 onMounted(async () => {
   const academicProgramId = computedPageData.value?.id ?? null
-  const ID = helpers.security.decrypt(props.deliveryunitid)
 
-  if (ID == "" || !(academicProgramId))
+  if (!academicProgramId)
   {
     return router.push("/notfound")
   }

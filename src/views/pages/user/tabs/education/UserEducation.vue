@@ -7,25 +7,11 @@ import useEducationStore from '@/stores/education.store'
 import Empty from "@images/downloaded/empty.png"
 import EducationModal from './EducationModal.vue'
 
-// 👉 Service
 const educationService = new EducationService()
-
-// 👉 Store
 const educationStore = useEducationStore()
-
-// 👉 Context
 const studentContext = useStudentContext
-
-// 👉 Modal visibility
-const isModalVisible = ref(false)
-
-// 👉 Update flag
-const isUpdateMode = ref(false)
-
-// 👉 Toast
+const modalRef = ref()
 const toast = inject('toast')
-
-// 👉 Swal
 const swal = inject("swal")
 
 const items = computed(() => {
@@ -33,14 +19,11 @@ const items = computed(() => {
 })
 
 async function onCreate() {
-  isModalVisible.value = true
-  isUpdateMode.value = false
+  modalRef.value.open()
 }
 
 async function onUpdate(education) {
-  isModalVisible.value = true
-  isUpdateMode.value = true
-  educationStore.setField(education)
+  modalRef.value.openAsUpdateMode(education)
 }
 
 async function onDelete(education) {
@@ -75,7 +58,6 @@ onMounted(async () => {
 
     if (code == 200)
     {
-      console.log(response)
       educationStore.initilize(response)
     }
   } catch (error) {
@@ -112,14 +94,29 @@ onMounted(async () => {
         </span>
       </div>
       <template v-else>
-        <div class="d-flex flex-row flex-nowrap align-center gap-2 mb-4">
-          <VIcon
-            icon="mdi-school"
-            size="30"
-          />
-          <h1 class="font-weight-thin">
-            Educational Background
-          </h1>  
+        <div class="d-flex flex-row flex-nowrap align-center justify-space-between gap-2 mb-4">
+          <div class="d-flex flex-row flex-nowrap gap-2">
+            <VIcon
+              icon="mdi-school"
+              size="30"
+            />
+            <h1 class="font-weight-thin">
+              Educational Background
+            </h1>  
+          </div>
+
+          <VBtn
+            variant="elevated"
+            rounded="pill"
+            size="small"
+            @click="onCreate"
+          >
+            <VIcon
+              start
+              icon="tabler-flag"
+            />
+            CREATE
+          </VBtn>
         </div>
         <VTimeline
           side="end"
@@ -172,25 +169,11 @@ onMounted(async () => {
             </div>
           </VTimelineItem>
         </VTimeline>
-        <div class="d-flex flex-row flex-nowrap justify-center w-100 py-3">
-          <VBtn
-            variant="elevated"
-            rounded="pill"
-            @click="onCreate"
-          >
-            <VIcon
-              start
-              icon="tabler-flag"
-            />
-            CREATE
-          </VBtn>
-        </div>
       </template>
     </VCardText>
   </VCard>
 
   <EducationModal
-    v-model="isModalVisible"
-    :is-update-mode="isUpdateMode"
+    ref="modalRef"
   />
 </template>

@@ -105,17 +105,17 @@ watch(search, () => {
 }, { deep: true })
 
 onMounted(async () => { 
-  const ID = helpers.security.decrypt(props.id)
+  const ID = helpers.security.decrypt(props.campusid)
 
   if (!computedPageData.value)
   {
     return router.push("/notfound")
   }
 
-  // if (ID != computedPageData.value.id)
-  // {
-  //   return router.push("/notfound")
-  // }
+  if (parseInt(ID) != computedPageData.value.id)
+  {
+    return router.push("/notfound")
+  }
 
   duStore.setCampus(ID)
   duStore.clear()

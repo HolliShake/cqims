@@ -1,4 +1,4 @@
-import CryptoJS from "crypto-js"
+import Hashids from 'hashids'
 
 const SALT = "S@lt"
 const KEY = "Dt0!"
@@ -6,18 +6,15 @@ const KEY = "Dt0!"
 const security = ({
   encrypt: function (text) { 
     try {
-      return CryptoJS.AES.encrypt(SALT + `${text}`, KEY).toString()
+      return (new Hashids('dto@cqi', 8)).encode(text)
     } catch (err) {
       return "0"
     }
   },
   decrypt: function (text) { 
     text = text.toString()
-    try {
-      const bytes =
-        CryptoJS.AES.decrypt(text, KEY)
-    
-      return bytes.toString(CryptoJS.enc.Utf8).replaceAll(SALT, "")
+    try {  
+      return (new Hashids('dto@cqi', 8)).decode(text).pop()
     } catch (err) {
       return "0"
     }
@@ -40,8 +37,23 @@ const formater = ({
   },
 })
 
+const resolver = ({
+  getColor: function (value) {
+    if (value <= 25) {
+      return "error"
+    } else if (value <= 50) {
+      return "warning"
+    } else if (value <= 75) {
+      return "success"
+    } else {
+      return "primary"
+    }
+  },
+})
+
 export const helpers = Object.freeze({
   security,
   formater,
+  resolver,
 })
 
