@@ -140,7 +140,7 @@ async function reset() {
             >
               <VRadio
                 label="Poor"
-                :value="0"
+                :value="5"
               />
               <VRadio
                 label="Good"

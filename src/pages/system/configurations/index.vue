@@ -1,5 +1,6 @@
 <script setup>
 import AcademicTermTable from "@/views/pages/system/academic-term/AcademicTermTable.vue"
+import CatalogView from "@/views/pages/system/catalog/CatalogView.vue"
 import DisciplineView from "@/views/pages/system/discipline/DisciplineView.vue"
 import ExaminationTable from "@/views/pages/system/examination/ExaminationTable.vue"
 import ProgramCategoryTable from "@/views/pages/system/program-category/ProgramCategoryTable.vue"
@@ -31,7 +32,7 @@ const breadCrumbs = ref([
     <VCard>
       <VList
         class="configuration-v-list"
-        type="accordion"
+        type=""
       >
         <!-- --------------------------------- Academic programs ---------------------------------- -->
         <VListGroup>
@@ -82,6 +83,32 @@ const breadCrumbs = ref([
           <!-- content -->
           <VListItem style="padding-block-end: 0 !important; padding-inline-end: 0 !important; padding-inline-start: 0 !important;">
             <AcademicTermTable />
+          </VListItem>
+        </VListGroup>
+        <!-- --------------------------------- Catalog ---------------------------------- -->
+        <VDivider />
+        <VListGroup>
+          <template #activator="{ props }">
+            <VListItem
+              v-bind="props"
+              prepend-icon="mdi-list-box"
+            >
+              <!-- title -->
+              <template #title>
+                <span class="config-list-title font-weight-bold text-dark text-black text-uppercase">Catalog</span>
+              </template>
+              <!-- activator -->
+              <template #append="{ isActive }">
+                <VIcon
+                  color="success"
+                  :icon="isActive? 'tabler-arrow-badge-up-filled' : 'tabler-arrow-badge-down-filled'"
+                />
+              </template>
+            </VListItem>
+          </template>
+          <!-- content -->
+          <VListItem style="padding-block-end: 0 !important; padding-inline-end: 0 !important; padding-inline-start: 0 !important;">
+            <CatalogView />
           </VListItem>
         </VListGroup>
         <!-- --------------------------------- Discipline ---------------------------------- -->

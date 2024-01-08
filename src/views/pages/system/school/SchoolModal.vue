@@ -34,7 +34,7 @@ const visible = ref(false)
 const refVForm = ref()
 
 // 👉 Form state
-const formState = ref()
+const formState = ref({})
 
 // 👉 Form error
 const formError = ref({

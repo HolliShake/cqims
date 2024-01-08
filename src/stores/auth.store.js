@@ -1,13 +1,25 @@
 import { defineStore } from "pinia"
 
 const useAuthStore = defineStore("AuthStore", {
-  state: () => ({
-    credential: null,
-  }),
+  state: () => {
+    let data = null
+
+    try {
+      data = JSON.parse(localStorage.getItem("userData")) ?? null
+    } catch (e) {
+    }
+
+    return ({
+      credential: data,
+    })
+  },
 
   getters: {
     getCredential() {
       return this.credential
+    },
+    isLoggedIn() {
+      return this.credential != null
     }
   },
     

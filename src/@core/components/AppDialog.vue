@@ -8,7 +8,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-function handleClose()
+async function handleClose()
 {
   emit('update:modelValue', false)
 }

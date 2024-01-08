@@ -1,5 +1,6 @@
 <!-- eslint-disable vue/custom-event-name-casing -->
 <script setup>
+import Constant from "@/constants"
 import CourseRequisiteService from "@/services/course-requisite.service"
 import useCourseRequisiteStore from "@/stores/course-requisite.store"
 import useCourseStore from "@/stores/course.store"
@@ -59,6 +60,9 @@ const search = ref("")
 // 👉 Selected courses
 const selectedCourses = ref([])
 
+// 👉 Requisite type
+const selectedRequisiteType = ref(0)
+
 // 👉 Actual data
 const data = computed(() => {
   return courseStore.getCourses
@@ -94,12 +98,10 @@ async function onCreate()
 {
 
   const payload = selectedCourses.value.map(courseId => ({
-    requisiteType: 0, // Default is Co
+    requisiteType: selectedRequisiteType.value, // Default is Co
     parentCourseId: courseRequisiteStore.getCourse,
     requisiteId: courseId,
   }))
-
-  console.log(payload)
 
   try {
     const { status: code, data: response, message: error } = await courseRequisiteService.createAllCourseRequisite(payload)
@@ -229,6 +231,19 @@ async function onCreate()
           </template>
         </AppTable>
       </VCard>
+      <div class="d-flex flex-row w-100">
+        <VRadioGroup
+          inline
+          v-model="selectedRequisiteType"
+        >
+          <VRadio 
+            v-for="item in Constant.RequisiteType.requisiteTypes"
+            :key="`requisite-type-${item.value}`"
+            :label="item.title"
+            :value="item.value"
+          />
+        </VRadioGroup>
+      </div>
     </template>
     <template #actions>
       <VBtn

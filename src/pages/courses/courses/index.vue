@@ -1,4 +1,5 @@
 <script setup>
+import Constant from "@/constants"
 import CourseRequisiteService from "@/services/course-requisite.service"
 import CourseService from "@/services/course.service"
 import useCourseRequisiteStore from "@/stores/course-requisite.store"
@@ -47,25 +48,17 @@ const tableHeaders = ref([
   },
 ])
 
-// 👉 Table headers
-const requisiteHeaders = ref([
+const breadCrumbs = ref([
   {
-    title: "COURSE NAME",
-    key: "courseName",
-    width: "auto",
-    value: v => h("span", { class: "text-no-wrap" }, v.courseName),
+    title: "Dashbaord",
+    href: "/",
+    disabled: false
   },
   {
-    title: "CODE",
-    key: "courseCode",
-    width: "100%",
-  },
-  {
-    title: "ACTION",
-    key: "action",
-    align: "center",
-    width: 100,
-  },
+    title: "Courses",
+    href: "/courses/courses",
+    disabled: true
+  }
 ])
 
 // 👉 Modal visiblity
@@ -83,9 +76,13 @@ const toast = inject("toast")
 // 👉 Swal
 const swal = inject("swal")
 
+// 👉 Course search
+const searchCourse = ref("")
+
 // 👉 Actual data
 const data = computed(() => {
   return courseStore.getCourses
+  .filter(course => course.courseName.toLowerCase().startsWith(searchCourse.value.toLowerCase()))
 })
 
 // 👉 On create event
@@ -185,6 +182,7 @@ onMounted(async () => {
     <PageHeader
       title="Courses"
       subtitle="Shows available courses"
+      :breadcrumb="breadCrumbs"
     />
 
     <VCard>
@@ -194,7 +192,10 @@ onMounted(async () => {
             cols="12"
             md="3"
           >
-            <VTextField label="Search course" />
+            <VTextField 
+              v-model="searchCourse"
+              label="Search course" 
+            />
           </VCol>
           <VCol
             cols="12"
@@ -251,10 +252,10 @@ onMounted(async () => {
                   <VCol cols="12">
                     <span class="d-flex flex-nowrap w-100 text-xs"><span>CREDITED HOURS (LEC):</span> <VSpacer /> <span>{{ item.raw.creditHoursLec }}</span></span>
                   </VCol>
-                  <VCol cols="auto">
+                  <VCol cols="12">
                     <span class="d-flex flex-nowrap w-100 text-xs"><span>CREDITED HOURS:</span> <VSpacer /> <span>{{ item.raw.creditHours }}</span></span>
                   </VCol>
-                  <VCol cols="auto">
+                  <VCol cols="12">
                     <span class="d-flex flex-nowrap w-100 text-xs"><span>CREDITED UNITS:</span> <VSpacer /> <span>{{ item.raw.creditsUnit }}</span></span>
                   </VCol>
                   <VCol cols="12">
@@ -323,7 +324,7 @@ onMounted(async () => {
                             >
 
                               <VTooltip activator="parent">
-                                {{ item.requisiteType }}
+                                {{ Constant.RequisiteType.mapRequisiteType(item.requisiteType) }}
                               </VTooltip>
 
                               <span class="d-block text-sm me-2">{{ item.requisite.courseName }}</span>

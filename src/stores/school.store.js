@@ -2,6 +2,7 @@ import { cloneDeep, merge } from "lodash"
 import { defineStore } from "pinia"
 
 const defaultData = () => ({
+  id: 0,
   schoolName: "",
   schoolShortName: "",
   schoolNumber: "",

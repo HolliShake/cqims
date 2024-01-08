@@ -73,7 +73,10 @@ async function onLogin(e) {
       offset-lg="4"
       class="auth-card-v2 d-flex align-center justify-center"
     >
-      <VCard :max-width="450">
+      <VCard 
+        :max-width="450" 
+        color="rgb(var(--v-theme-background))"
+      >
         <VCardText>
           <VNodeRenderer
             :nodes="themeConfig.app.logo"

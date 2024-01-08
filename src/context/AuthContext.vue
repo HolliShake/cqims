@@ -15,6 +15,11 @@ const toast = inject("toast")
 provide("authContext", authContext)
 
 onMounted(async () => {
+
+  if (!authStore.isLoggedIn) {
+    return 
+  }
+
   // Fetch auth data
   try
   {

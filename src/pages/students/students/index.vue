@@ -46,6 +46,9 @@ const studentService = new StudentService()
 // 👉 Store
 const studentStore = useStudentStore()
 
+// 👉 Search
+const search = ref("")
+
 // 👉 Modal visiblity
 const isStudentModalVisible = ref(false)
 
@@ -67,6 +70,10 @@ const canAdd = computed(() => !!studentStore.getCampusId)
 // 👉 Actual data
 const data = computed(() => {
   return studentStore.getStudents
+    .filter(student => 
+      student.user.fullName.toLowerCase().startsWith(search.value.toLowerCase()) ||
+      student.studentId.toString().toLowerCase().startsWith(search.value.toLowerCase())
+    )
 })
 
 // 👉 Create student
@@ -164,7 +171,7 @@ watch(useSchoolPicker, async picker => {
                 cols="12"
                 md="3"
               >
-                <VTextField label="Search student id or name" />
+                <VTextField v-model="search" label="Search student id or name" />
               </VCol>
               <VCol cols="auto">
                 <ItemsPerPage :dense="!!false" />  
@@ -173,6 +180,22 @@ watch(useSchoolPicker, async picker => {
                 cols="12"
                 md="auto"
                 class="ms-auto"
+              >
+                <VBtn
+                  :disabled="!canAdd"
+                  block
+                  color="error"
+                >
+                  <VIcon 
+                    start 
+                    icon="tabler-file-spreadsheet" 
+                  />
+                  UPLOAD FROM EXCEL FILE
+                </VBtn>
+              </VCol>
+              <VCol
+                cols="12"
+                md="auto"
               >
                 <VBtn
                   :disabled="!canAdd"
